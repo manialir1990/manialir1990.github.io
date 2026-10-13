@@ -1,12 +1,18 @@
-<!doctype html><html lang="fa" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="css/base.css"><title>پنل عضو</title><link rel="stylesheet" href="css/dash.css"><script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script></head><body>
-<div class="topbar"><b>تعاونی مسکن مپنا هوایی</b><span>خوش آمدید، <b id="hello"></b> &nbsp; <a href="#" onclick="Sess.out()">خروج</a></span></div>
-<div class="wrap"><div class="msg er" id="err"></div><div class="grid">
-<div class="card"><h2>👤 مشخصات من</h2><div class="info" id="info"></div></div>
-<div class="card"><h2>🏆 رتبه‌بندی اعضا</h2><div class="tbl-wrap" ><div id="rank"></div></div></div>
-<div class="card"><h2>💰 واریزی‌ها</h2><div class="tbl-wrap" id="pay"></div></div>
-<div class="card"><h2>📅 تعهدات مالی</h2><div class="tbl-wrap" id="obl"></div></div></div>
-<div class="links"><a class="card" href="notices.html"><svg viewBox="0 0 24 24"><path d="M4 4h12l4 4v12H4zM8 12h8M8 16h8"/></svg>دعوت‌نامه‌ها و ابلاغیه‌ها</a><a class="card" href="minutes.html"><svg viewBox="0 0 24 24"><path d="M6 3h9l4 4v14H6zM9 12h7M9 16h7M9 8h3"/></svg>صورت‌جلسات</a><a class="card" href="#" id="rq"><svg viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/></svg>درخواست و پیشنهاد</a></div></div>
-<div class="modal" id="mod"><div class="card"><h2>لطفا درخواست و پیشنهاد خود را ارسال فرمایید.</h2><textarea id="reqText"></textarea><button class="btn" id="send">ارسال</button><button class="btn ghost" id="cl">بستن</button><div class="msg" id="rm"></div></div></div>
-<script src="js/config.js"></script><script src="js/jalali.js"></script><script src="js/github.js"></script><script src="js/db.js"></script><script src="js/dashboard.js"></script><script src="js/request.js"></script>
-<script>initDash();rq.onclick=e=>{e.preventDefault();mod.classList.add('on')};cl.onclick=()=>mod.classList.remove('on');
-send.onclick=async()=>{const t=reqText.value.trim();if(!t)return;rm.className='msg';rm.textContent='در حال ارسال…';try{await sendRequest(hello.textContent,t);rm.className='msg ok';rm.textContent='ارسال شد. سپاسگزاریم.';reqText.value=''}catch(e){rm.className='msg er';rm.textContent=e.message}}</script></body></html>
+<!doctype html><html lang="fa" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>داشبورد</title><link rel="stylesheet" href="css/theme.css"></head><body>
+<main class="wrap"><h2 style="margin-top:48px">داشبورد</h2><div class="card"><h3>مشخصات</h3><div class="grid" id="inf"></div></div>
+<div class="card"><h3>واریزی‌ها</h3><div id="pay"></div></div><div class="card"><h3>تعهدات مالی</h3><div id="obl"></div></div>
+<div class="grid"><a class="card lk" href="invitations.html"><span class="ic">📨</span><h3>دعوتنامه‌ها و ابلاغیه‌ها</h3></a><a class="card lk" href="minutes.html"><span class="ic">📋</span><h3>صورت‌جلسات</h3></a></div>
+<div class="card"><h3>رتبه‌بندی امتیاز</h3><div id="rk"></div></div>
+<div class="card"><h3>لطفا درخواست و پیشنهاد خود را ارسال فرمایید</h3><textarea id="rq" rows="5" style="font-family:'B Nazanin',Vazirmatn;font-size:14pt;color:#000;background:#fff"></textarea><button id="snd">ارسال</button> <span id="rs"></span></div></main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script><script src="js/config.js"></script><script src="js/app.js"></script>
+<script>(async()=>{const m=await need();shell(m);
+const[p,o,l,h]=await Promise.all([sb.from('payments').select('*').eq('national_id',m.national_id).order('paid_at',{ascending:false}),sb.from('obligations').select('*').eq('national_id',m.national_id).order('due_at'),sb.rpc('leaderboard'),sb.rpc('my_hash')]);
+const paid=(p.data||[]).reduce((a,x)=>a+ +x.amount,0),debt=(o.data||[]).reduce((a,x)=>a+ +x.amount,0);
+const f=[['نام',m.first_name],['نام خانوادگی',m.last_name],['کد ملی',m.national_id],['موبایل',m.mobile],['ایمیل',m.email],['شرکت مادر',m.parent_company],['وضعیت عضویت',m.status],['تعاونی',m.coop],['جمع پرداختی‌ها',money(paid)],['میزان بدهی',money(Math.max(debt-paid,0))],['امتیاز',m.score]];
+$('#inf').innerHTML=f.map(([k,v])=>`<div class="kv"><small>${k}</small>${v??'—'}</div>`).join('');
+$('#pay').innerHTML=tbl(['مبلغ','تاریخ'],(p.data||[]).map(x=>`<tr><td>${money(x.amount)}</td><td>${x.paid_at||''}</td></tr>`));
+$('#obl').innerHTML=tbl(['مبلغ','سررسید'],(o.data||[]).map(x=>`<tr><td>${money(x.amount)}</td><td>${x.due_at||''}</td></tr>`));
+$('#rk').innerHTML=tbl(['رتبه','نام','امتیاز'],(l.data||[]).map((x,i)=>`<tr class="${x.id===h.data?'me':''}"><td>${i+1}</td><td>${x.first_name} ${x.last_name}</td><td>${x.score}</td></tr>`));
+const r=$('#rk .me');if(r){const s=$('#rk .scroll');s.scrollTop=r.offsetTop-s.clientHeight/2+r.clientHeight/2}
+$('#snd').onclick=async()=>{const e=await sb.from('requests').insert({national_id:m.national_id,full_name:m.first_name+' '+m.last_name,body:$('#rq').value});
+$('#rs').textContent=e.error?e.error.message:'ارسال شد';if(!e.error)$('#rq').value=''}})()</script></body></html>
