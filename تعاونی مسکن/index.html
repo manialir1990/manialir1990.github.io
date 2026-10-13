@@ -1,0 +1,24 @@
+<!doctype html><html lang="fa" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>تعاونی مسکن مپنا هوایی</title><link rel="stylesheet" href="css/theme.css"></head><body>
+<div class="trail"><i></i><i></i><i></i></div>
+<main class="wrap"><section class="hero"><div class="card" style="width:min(420px,100%)"><h1>تعاونی مسکن مپنا هوایی</h1>
+<div id="lg"><input id="u" placeholder="کد ملی" inputmode="numeric"><input id="p" type="password" placeholder="رمز عبور"><button id="go" style="width:100%">ورود</button></div>
+<div id="rg" hidden><input id="np" type="password" placeholder="رمز عبور جدید"><input id="em" type="email" placeholder="ایمیل"><button id="sv" style="width:100%">ثبت</button></div><div class="msg" id="ms"></div></div></section>
+<section class="card" id="info"><div class="tabs"><button class="sec" data-t="loc">موقعیت پروژه</button><button class="sec" data-t="news">اخبار</button><button class="sec" data-t="co">شرکت‌های مادر</button></div>
+<div id="loc"><p>استان البرز، شهرستان فردیس، خیابان دهکده، خیابان خیام غربی، ساختمان تعاونی مسکن مپنا هوایی</p><iframe loading="lazy" src="https://maps.google.com/maps?q=35.731166,50.969637&z=17&output=embed"></iframe></div>
+<div id="news" class="news" hidden></div><div id="co" class="news" hidden></div></section></main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script><script src="js/config.js"></script><script src="js/app.js"></script>
+<script>
+const ms=t=>$('#ms').textContent=t;
+async function feed(f,el){try{const t=await(await fetch('data/'+f+'?'+Date.now())).text();$(el).innerHTML=t.split('\n').map(l=>l.trim()).filter(l=>l&&!l.startsWith('#')).map(l=>{const[u,n,lg]=l.split('|').map(s=>s.trim());return`<a class="kv" href="${u}" target="_blank" rel="noopener"><img class="${lg?'lg':''}" loading="lazy" src="${lg||'https://image.thum.io/get/width/500/'+u}"><div>${n||u}</div></a>`}).join('')}catch(e){}}
+feed('news.txt','#news');feed('companies.txt','#co');
+document.querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>['loc','news','co'].forEach(i=>$('#'+i).hidden=i!==b.dataset.t));
+$('#go').onclick=async()=>{ms('');const nid=nd($('#u').value),pw=nd($('#p').value);
+ let r=await sb.auth.signInWithPassword({email:nid+CFG.dom,password:pw});
+ if(r.error){const ok=await sb.rpc('check_initial',{nid,pw});if(!ok.data)return ms('کد ملی یا رمز عبور اشتباه است');
+  r=await sb.auth.signUp({email:nid+CFG.dom,password:pw});if(r.error)return ms(r.error.message);await sb.rpc('claim',{nid})}
+ route()};
+$('#sv').onclick=async()=>{const e=await sb.auth.updateUser({password:$('#np').value});if(e.error)return ms(e.error.message);
+ const m=await me();const u=await sb.from('members').update({email:$('#em').value}).eq('national_id',m.national_id);if(u.error)return ms(u.error.message);location='dashboard.html'};
+async function route(){const m=await me();if(!m)return;if(!m.email){$('#lg').hidden=true;$('#rg').hidden=false}else location='dashboard.html'}
+route();
+</script></body></html>
