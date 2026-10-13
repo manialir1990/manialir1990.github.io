@@ -1,0 +1,2 @@
+(async()=>{const el=document.querySelector('#feed');try{const t=await(await fetch('data/'+el.dataset.f+'?'+Date.now())).text();
+el.innerHTML=t.split('\n').map(l=>l.trim()).filter(l=>l&&!l.startsWith('#')).map(l=>{const[u,n,lg]=l.split('|').map(s=>s.trim());return`<a class="kv" href="${u}" target="_blank" rel="noopener"><img class="${lg?'lg':''}" loading="lazy" src="${lg||'https://image.thum.io/get/width/500/'+u}"><div>${n||u}</div></a>`}).join('')}catch(e){el.textContent='خطا در بارگذاری'}})();
