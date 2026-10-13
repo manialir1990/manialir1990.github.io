@@ -1,13 +1,12 @@
 @import url('https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css');
 :root{--bg:#161a22;--card:#1e2430cc;--line:#2c3544;--tx:#e6ebf5;--mut:#8b97ad;--ac:#38e1c8;--ac2:#7c9cff;--bad:#ff5d7a}
 *{box-sizing:border-box}
-body{margin:0;font-family:Vazirmatn,Tahoma,sans-serif;color:var(--tx);direction:rtl;min-height:100vh;
-background:linear-gradient(163deg,transparent 0,transparent 1px,#2a303c 1px,#2a303c 14px,transparent 14px),linear-gradient(161deg,transparent 0,#1d222b 1px,#2a303c 2px,#2a303c 15px,transparent 15px),linear-gradient(343deg,transparent 0,transparent 1px,#2a303c 1px,#2a303c 14px,transparent 14px),linear-gradient(343deg,transparent 0,transparent 1px,#2a303c 1px,#2a303c 14px,transparent 14px);
-background-color:var(--bg);background-position:2px 1px,23px 16px,48px 15px,21px 30px;background-size:48px 30px}
+body{margin:0;font-family:Vazirmatn,Tahoma,sans-serif;color:var(--tx);direction:rtl;min-height:100vh;background:var(--bg)}
 .trail{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:0}
-.trail i{position:absolute;height:2px;width:140px;background:linear-gradient(90deg,transparent,var(--ac));box-shadow:0 0 12px var(--ac);transform:rotate(17deg);animation:tr 9s linear infinite}
-.trail i:nth-child(2){animation-delay:-4s;margin-top:30vh}.trail i:nth-child(3){animation-delay:-7s;margin-top:60vh}
-@keyframes tr{from{left:-160px;top:10%}to{left:105%;top:30%}}
+.trail::after{content:'';position:absolute;inset:0;background:linear-gradient(163deg,transparent 0,transparent 1px,#2a303c 1px,#2a303c 14px,transparent 14px),linear-gradient(161deg,transparent 0,#1d222b 1px,#2a303c 2px,#2a303c 15px,transparent 15px),linear-gradient(343deg,transparent 0,transparent 1px,#2a303c 1px,#2a303c 14px,transparent 14px),linear-gradient(343deg,transparent 0,transparent 1px,#2a303c 1px,#2a303c 14px,transparent 14px);background-position:2px 1px,23px 16px,48px 15px,21px 30px;background-size:48px 30px}
+.trail i{position:absolute;left:0;top:45%;width:340px;height:110px;transform-origin:0 0;background:radial-gradient(ellipse at 88% 50%,#fff 0,var(--ac) 12%,#38e1c866 38%,transparent 70%);animation:tr 11s linear infinite}
+.trail i:nth-child(2){top:78%;animation-delay:-4s;animation-duration:13s}.trail i:nth-child(3){top:105%;animation-delay:-8s;animation-duration:15s}
+@keyframes tr{from{transform:rotate(-17deg) translateX(-400px)}to{transform:rotate(-17deg) translateX(calc(100vw + 500px))}}
 main,header,aside{position:relative;z-index:1}
 h1,h2,h3{text-shadow:0 0 14px var(--ac);margin:.4em 0}
 .card{background:var(--card);backdrop-filter:blur(8px);border:1px solid var(--line);border-radius:16px;padding:16px;margin:12px 0;box-shadow:0 0 24px #0006,0 0 1px var(--ac) inset}
