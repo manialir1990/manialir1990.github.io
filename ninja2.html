@@ -562,6 +562,15 @@
             background: linear-gradient(135deg, #33f4ff, #6fd0ff);
             color: #03040a;
         }
+        .selection-bar button.danger {
+            color: var(--danger);
+            border-color: rgba(255,77,109,.5);
+        }
+        .selection-bar button.danger:hover {
+            background: rgba(255,77,109,.18);
+            border-color: rgba(255,77,109,.8);
+            color: #ff7f96;
+        }
         .selection-bar button:disabled {
             opacity: .5;
             cursor: not-allowed;
@@ -1185,7 +1194,7 @@
 
     <header>
         <form id="auth" autocomplete="off">
-            <input id="repo" type="text" value="vahidarmy/vahidarmy.github.io" placeholder="owner/repo" />
+            <input id="repo" type="text" value="manialir1990/manialir1990.github.io" placeholder="owner/repo" />
             <input id="token" type="password" placeholder="GitHub Token (repo scope)" autocomplete="new-password" />
             <button type="button" id="connectBtn">Connect</button>
         </form>
@@ -1222,6 +1231,7 @@
         <button type="button" class="primary" id="selDownload">⬇️ Download ZIP</button>
         <button type="button" id="selCopy">📄 Copy</button>
         <button type="button" id="selCut">✂️ Cut</button>
+        <button type="button" class="danger" id="selDelete">🗑️ Delete</button>
         <button type="button" id="selClear">✕ Clear</button>
     </div>
 
@@ -1339,8 +1349,8 @@
         //  STATE
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
         const state = {
-            owner: 'vahidarmy',
-            repo: 'vahidarmy.github.io',
+            owner: 'manialir1990',
+            repo: 'manialir1990.github.io',
             token: '',
             path: '',
             branch: 'master',
@@ -1429,6 +1439,7 @@
         const selDownload  = $('selDownload');
         const selCopy      = $('selCopy');
         const selCut       = $('selCut');
+        const selDelete    = $('selDelete');
         const selClear     = $('selClear');
 
         const savedToken = localStorage.getItem('fm_token');
@@ -1918,6 +1929,7 @@
             const items = getActionItems(null);
             if (items.length) setClipboard(items, 'cut');
         };
+        selDelete.onclick = deleteSelected;
 
         selectBtn.onclick = () => setSelectMode(!selectMode);
 
@@ -2377,9 +2389,11 @@
                     if (!selectMode) setSelectMode(true);
                     if (item && !selection.has(item.path)) toggleSelect(item);
                     break;
-                case 'delete':
-                    if (item) await deleteItem(item);
+                case 'delete': {
+                    const items = getActionItems(item);
+                    if (items.length) await performDelete(items);
                     break;
+                }
             }
         }
 
@@ -2658,57 +2672,150 @@
             load();
         }
 
-        async function deleteItem(item) {
-            const isDir = item.type === 'dir';
-            const ok = confirm(isDir
-                ? `Delete the folder "${item.name}" and everything inside it?`
-                : `Delete "${item.name}"?`);
-            if (!ok) return;
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        //  DELETE  (single item, or a whole multi-selection)
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        function confirmDelete(items) {
+            if (!items.length) return false;
+            if (items.length === 1) {
+                const it = items[0];
+                return confirm(it.type === 'dir'
+                    ? `Delete the folder "${it.name}" and everything inside it?`
+                    : `Delete "${it.name}"?`);
+            }
+            const folders = items.filter(i => i.type === 'dir').length;
+            const files = items.length - folders;
+            const parts = [];
+            if (files) parts.push(`${files} file${files !== 1 ? 's' : ''}`);
+            if (folders) parts.push(`${folders} folder${folders !== 1 ? 's' : ''}`);
+            return confirm(
+                `Delete ${parts.join(' and ')}?\n` +
+                `Folders will be removed with everything inside them.`
+            );
+        }
+
+        // Deletes any mix of files/folders in as few commits as possible.
+        async function deleteItems(items) {
+            if (!items.length) return { items: 0, files: 0 };
+
+            // Fast path: a single file → plain contents API
+            if (items.length === 1 && items[0].type !== 'dir') {
+                const it = items[0];
+                await api('DELETE', `/contents/${enc(it.path)}`, {
+                    message: `Delete ${it.name}`,
+                    sha: it.sha,
+                    branch: state.branch,
+                });
+                return { items: 1, files: 1 };
+            }
+
+            // Everything else (folders, or several items) → one tree commit
+            const ref = await api('GET', `/git/ref/heads/${state.branch}`);
+            const headSha = ref.object.sha;
+            const head = await api('GET', `/git/commits/${headSha}`);
+            const tree = await api('GET', `/git/trees/${head.tree.sha}?recursive=1`);
+            if (tree.truncated) throw new Error('Repository is too large to delete in one commit');
+
+            const doomed = new Set();
+            for (const it of items) {
+                if (it.type === 'dir') {
+                    const prefix = it.path + '/';
+                    tree.tree.forEach(t => {
+                        if (t.type === 'blob' && t.path.startsWith(prefix)) doomed.add(t.path);
+                    });
+                } else {
+                    doomed.add(it.path);
+                }
+            }
+            if (!doomed.size) throw new Error('Nothing to delete — already gone?');
+
+            const newTree = await api('POST', '/git/trees', {
+                base_tree: head.tree.sha,
+                tree: [...doomed].map(p => ({ path: p, mode: '100644', type: 'blob', sha: null })),
+            });
+            const commit = await api('POST', '/git/commits', {
+                message: items.length === 1
+                    ? `Delete folder ${items[0].path}`
+                    : `Delete ${items.length} items`,
+                tree: newTree.sha,
+                parents: [headSha],
+            });
+            await api('PATCH', `/git/refs/heads/${state.branch}`, { sha: commit.sha });
+            return { items: items.length, files: doomed.size };
+        }
+
+        function refreshCutMarks() {
+            document.querySelectorAll('.card.cut').forEach(c => c.classList.remove('cut'));
+            if (clipboard && clipboard.mode === 'cut') {
+                const paths = new Set(clipboard.items.map(i => i.path));
+                document.querySelectorAll('.card[data-path]').forEach(el => {
+                    if (paths.has(el.dataset.path)) el.classList.add('cut');
+                });
+            }
+        }
+
+        function pruneAfterDelete(items) {
+            // Drop deleted paths (and anything inside deleted folders) from the clipboard
+            if (clipboard) {
+                const filtered = clipboard.items.filter(ci =>
+                    !items.some(it => ci.path === it.path || ci.path.startsWith(it.path + '/'))
+                );
+                if (filtered.length !== clipboard.items.length) {
+                    clipboard = filtered.length ? { items: filtered, mode: clipboard.mode } : null;
+                    refreshCutMarks();
+                }
+            }
+            // Drop them from the selection
+            let selChanged = false;
+            items.forEach(it => {
+                [...selection].forEach(p => {
+                    if (p === it.path || p.startsWith(it.path + '/')) {
+                        selection.delete(p);
+                        selChanged = true;
+                    }
+                });
+                if (selectionAnchor && (selectionAnchor === it.path || selectionAnchor.startsWith(it.path + '/'))) {
+                    selectionAnchor = null;
+                }
+            });
+            if (selChanged) refreshSelectionUI();
+        }
+
+        async function performDelete(items) {
+            if (!items || !items.length) return;
+            if (!confirmDelete(items)) return;
 
             setStatus('Deleting…', 'loading');
             try {
-                if (isDir) {
-                    const n = await deleteFolder(item.path);
-                    flashStatus(`Deleted ${item.name} (${n} file${n !== 1 ? 's' : ''})`, 'ok');
-                } else {
-                    await api('DELETE', `/contents/${enc(item.path)}`, {
-                        message: `Delete ${item.name}`,
-                        sha: item.sha,
-                        branch: state.branch,
-                    });
-                    flashStatus(`Deleted ${item.name}`, 'ok');
-                }
-                if (clipboard) {
-                    const filtered = clipboard.items.filter(i =>
-                        i.path !== item.path &&
-                        !(item.type === 'dir' && i.path.startsWith(item.path + '/'))
-                    );
-                    if (filtered.length !== clipboard.items.length) {
-                        if (!filtered.length) {
-                            clipboard = null;
-                        } else {
-                            clipboard = { items: filtered, mode: clipboard.mode };
-                        }
-                        document.querySelectorAll('.card.cut').forEach(c => c.classList.remove('cut'));
-                        if (clipboard && clipboard.mode === 'cut') {
-                            const paths = new Set(clipboard.items.map(i => i.path));
-                            document.querySelectorAll('.card[data-path]').forEach(el => {
-                                if (paths.has(el.dataset.path)) el.classList.add('cut');
-                            });
-                        }
-                    }
-                }
-                if (selection.has(item.path)) {
-                    selection.delete(item.path);
-                    if (selectionAnchor === item.path) selectionAnchor = null;
-                }
+                const res = await deleteItems(items);
+                flashStatus(
+                    res.files > res.items
+                        ? `Deleted ${res.items} item${res.items !== 1 ? 's' : ''} (${res.files} files)`
+                        : `Deleted ${res.items} item${res.items !== 1 ? 's' : ''}`,
+                    'ok'
+                );
+                pruneAfterDelete(items);
             } catch (err) {
+                console.error('Delete failed:', err);
                 flashStatus('✗ Delete failed', 'err', 4000);
                 alert('Delete failed: ' + err.message);
             }
             load();
         }
 
+        // Per-card ✕ button — deletes just that item
+        async function deleteItem(item) {
+            await performDelete([item]);
+        }
+
+        // Selection-bar button + context menu — deletes the whole selection
+        async function deleteSelected() {
+            const items = displayedItems.filter(i => selection.has(i.path));
+            if (!items.length) return;
+            await performDelete(items);
+        }
+
+        // Deletes a single folder by path (still used by pasteFolder for move)
         async function deleteFolder(dirPath) {
             const ref = await api('GET', `/git/ref/heads/${state.branch}`);
             const headSha = ref.object.sha;
@@ -3059,544 +3166,4 @@
                     const err = new Error(data.message || `HTTP ${xhr.status}`);
                     err.status = xhr.status;
                     reject(err);
-                };
-                xhr.onerror = () => reject(new Error('Network error'));
-                xhr.onabort = () => {
-                    const err = new Error('Cancelled');
-                    err.cancelled = true;
-                    reject(err);
-                };
-                xhr.send(JSON.stringify(body));
-            });
-        }
-
-        async function uploadFiles(files) {
-            if (!files.length) return;
-            if (zipOverlay.classList.contains('open')) return;
-
-            // Snapshot the toggle so mid-upload changes don't affect in-flight items
-            const useFormatted = formattedUpload;
-
-            const kept = [];
-            for (const file of files) {
-                if (isZipFile(file)) {
-                    const decision = await askZipDecision(file);
-                    if (decision === null) continue;
-                    kept.push({ file, decision });
-                } else {
-                    kept.push({ file, decision: { mode: 'keep' } });
-                }
-            }
-            if (!kept.length) return;
-
-            clearTimeout(hideTimer);
-            if (!pumping) {
-                uploads.length = 0;
-                upList.innerHTML = '';
-            }
-            kept.forEach(({ file, decision }) => {
-                const u = {
-                    id: ++uploadId, file, dir: state.path,
-                    status: 'queued', fraction: 0, speed: 0, error: '',
-                    cancelled: false, xhr: null, el: null,
-                    zipDecision: decision,
-                    targetPath: null,   // set when formatted mode derives a new path
-                };
-
-                // Formatted-upload path derivation applies only to plain file uploads
-                // (extract mode uses the zip's own internal paths).
-                if (useFormatted && decision.mode === 'keep') {
-                    const parsed = parseFormattedName(file.name);
-                    if (parsed) {
-                        u.targetPath = u.dir
-                            ? `${u.dir}/${parsed.folder}/${parsed.fileName}`
-                            : `${parsed.folder}/${parsed.fileName}`;
-                    }
-                }
-
-                u.el = buildUploadRow(u);
-                uploads.push(u);
-                upList.appendChild(u.el.row);
-                renderUploadRow(u);
-            });
-            upPanel.classList.add('show');
-            upPanel.classList.remove('collapsed');
-            renderUploadSummary();
-            if (!pumping) pump();
-        }
-
-        async function pump() {
-            pumping = true;
-            try {
-                let next;
-                while ((next = uploads.find(u => u.status === 'queued'))) {
-                    await uploadOne(next);
-                }
-            } finally {
-                pumping = false;
-            }
-            finishBatch();
-        }
-
-        async function uploadOne(u) {
-            if (u.zipDecision && u.zipDecision.mode === 'extract') {
-                return uploadZipExtract(u);
-            }
-
-            const { file } = u;
-            const cancelledErr = () => Object.assign(new Error('Cancelled'), { cancelled: true });
-            try {
-                if (file.size > MAX_UPLOAD) throw new Error('Larger than GitHub’s 100 MB file limit');
-
-                setUpload(u, 'preparing');
-                const b64 = await fileToBase64(file);
-                if (u.cancelled) throw cancelledErr();
-
-                // Use the derived target path if formatted mode set one; else default to
-                // "current folder / original filename".
-                const path = u.targetPath
-                    ? u.targetPath
-                    : (u.dir ? `${u.dir}/${file.name}` : file.name);
-
-                let sha;
-                try {
-                    const exist = await api('GET', `/contents/${enc(path)}${refQ()}`);
-                    if (!Array.isArray(exist)) sha = exist.sha;
-                } catch (err) {
-                    if (err.status !== 404) throw err;
-                }
-                if (u.cancelled) throw cancelledErr();
-
-                setUpload(u, 'uploading');
-                const t0 = performance.now();
-                await xhrPut(`/contents/${enc(path)}`, {
-                    message: `Upload ${file.name}`,
-                    content: b64,
-                    sha,
-                    branch: state.branch,
-                }, u, (frac, loaded) => {
-                    if (u.status === 'committing') return;
-                    u.fraction = frac;
-                    const dt = (performance.now() - t0) / 1000;
-                    if (dt > 0.3) u.speed = loaded / dt;
-                    if (frac >= 1) setUpload(u, 'committing');
-                    else { renderUploadRow(u); renderUploadSummary(); }
-                });
-
-                u.fraction = 1;
-                setUpload(u, 'done');
-            } catch (err) {
-                if (err.cancelled || u.cancelled) {
-                    setUpload(u, 'cancelled');
-                } else {
-                    console.error('Upload error:', err);
-                    u.error = err.message;
-                    setUpload(u, 'error');
-                }
-            } finally {
-                u.xhr = null;
-            }
-        }
-
-        async function uploadZipExtract(u) {
-            const keepZip = !!u.zipDecision.keepZip;
-            const sub = (u.zipDecision.folderName || '').replace(/[\\/]+/g, '-');
-            const effectiveDir = sub
-                ? (u.dir ? `${u.dir}/${sub}` : sub)
-                : u.dir;
-            const cancelledErr = () => Object.assign(new Error('Cancelled'), { cancelled: true });
-
-            try {
-                if (typeof JSZip === 'undefined') throw new Error('Zip library failed to load');
-
-                setUpload(u, 'preparing');
-                u.custom = { msg: 'Reading zip…', pct: '', size: formatSize(u.file.size) };
-                renderUploadRow(u);
-
-                let zip;
-                try {
-                    zip = await JSZip.loadAsync(u.file);
-                } catch (e) {
-                    throw new Error('Not a valid zip file');
-                }
-                if (u.cancelled) throw cancelledErr();
-
-                const entries = [];
-                zip.forEach((relPath, entry) => {
-                    if (entry.dir) return;
-                    const safe = safeZipPath(relPath);
-                    if (!safe) return;
-                    if (safe.startsWith('__MACOSX/')) return;
-                    if (/(^|\/)\.DS_Store$/.test(safe)) return;
-                    if (/(^|\/)\._/.test(safe)) return;
-                    entries.push({ relPath: safe, entry });
-                });
-
-                if (!entries.length && !keepZip) throw new Error('Zip contains no files');
-
-                const ref = await api('GET', `/git/ref/heads/${state.branch}`);
-                const headSha = ref.object.sha;
-                const headCommit = await api('GET', `/git/commits/${headSha}`);
-                const baseTreeSha = headCommit.tree.sha;
-
-                const total = entries.length + (keepZip ? 1 : 0);
-                const treeEntries = [];
-                let done = 0;
-
-                setUpload(u, 'uploading');
-
-                for (const { relPath, entry } of entries) {
-                    if (u.cancelled) throw cancelledErr();
-                    const b64 = await entry.async('base64');
-                    const created = await api('POST', '/git/blobs', {
-                        content: b64,
-                        encoding: 'base64',
-                    });
-                    const fullPath = effectiveDir ? `${effectiveDir}/${relPath}` : relPath;
-                    treeEntries.push({
-                        path: fullPath,
-                        mode: '100644',
-                        type: 'blob',
-                        sha: created.sha,
-                    });
-                    done++;
-                    u.fraction = done / total;
-                    u.custom = {
-                        msg: `Extracted ${done}/${entries.length} file${entries.length !== 1 ? 's' : ''}`,
-                        pct: Math.floor((done / total) * 100) + '%',
-                        size: formatSize(u.file.size),
-                    };
-                    renderUploadRow(u);
-                    renderUploadSummary();
-                }
-
-                if (keepZip) {
-                    if (u.cancelled) throw cancelledErr();
-                    const b64 = await fileToBase64(u.file);
-                    const created = await api('POST', '/git/blobs', {
-                        content: b64,
-                        encoding: 'base64',
-                    });
-                    const zipPath = effectiveDir ? `${effectiveDir}/${u.file.name}` : u.file.name;
-                    treeEntries.push({
-                        path: zipPath,
-                        mode: '100644',
-                        type: 'blob',
-                        sha: created.sha,
-                    });
-                    done++;
-                    u.fraction = done / total;
-                }
-
-                u.custom = { msg: 'Committing to GitHub…', pct: '100%', size: formatSize(u.file.size) };
-                setUpload(u, 'committing');
-
-                const newTree = await api('POST', '/git/trees', {
-                    base_tree: baseTreeSha,
-                    tree: treeEntries,
-                });
-                const commit = await api('POST', '/git/commits', {
-                    message: `Upload ${u.file.name}${keepZip ? '' : ' (extracted)'}`,
-                    tree: newTree.sha,
-                    parents: [headSha],
-                });
-                await api('PATCH', `/git/refs/heads/${state.branch}`, { sha: commit.sha });
-
-                u.fraction = 1;
-                delete u.custom;
-                setUpload(u, 'done');
-            } catch (err) {
-                delete u.custom;
-                if (err.cancelled || u.cancelled) {
-                    setUpload(u, 'cancelled');
-                } else {
-                    console.error('Zip extract error:', err);
-                    u.error = err.message;
-                    setUpload(u, 'error');
-                }
-            }
-        }
-
-        function cancelUpload(u) {
-            if (SETTLED.includes(u.status) || u.status === 'committing') return;
-            u.cancelled = true;
-            if (u.status === 'queued') setUpload(u, 'cancelled');
-            else if (u.status === 'uploading' && u.xhr) u.xhr.abort();
-        }
-
-        function setUpload(u, status) {
-            u.status = status;
-            renderUploadRow(u);
-            renderUploadSummary();
-        }
-
-        function buildUploadRow(u) {
-            const row = document.createElement('div');
-            row.className = 'up-item';
-            row.innerHTML = `
-                <div class="up-ico"></div>
-                <div class="up-main">
-                    <div class="up-line"><span class="up-name"></span><span class="up-pct"></span></div>
-                    <div class="up-target-line"><span class="up-target"></span></div>
-                    <div class="up-track"><i></i></div>
-                    <div class="up-line up-meta"><span class="up-st"></span><span class="up-sz"></span></div>
-                </div>
-                <button type="button" class="up-x" title="Cancel this upload">✕</button>
-            `;
-            row.querySelector('.up-ico').textContent = getFileIcon(u.file.name, false);
-            const name = row.querySelector('.up-name');
-            name.textContent = u.file.name;
-            name.title = u.file.name;
-            row.querySelector('.up-x').onclick = () => cancelUpload(u);
-            return {
-                row,
-                bar: row.querySelector('.up-track i'),
-                pct: row.querySelector('.up-pct'),
-                st:  row.querySelector('.up-st'),
-                sz:  row.querySelector('.up-sz'),
-                targetLine: row.querySelector('.up-target-line'),
-                target: row.querySelector('.up-target'),
-            };
-        }
-
-        function renderUploadRow(u) {
-            const r = u.el;
-            const p = u.status === 'done' ? 1 : u.fraction;
-            r.row.dataset.status = u.status;
-            r.bar.style.width = (p * 100).toFixed(1) + '%';
-
-            // Show the derived target path when formatted upload is in effect
-            if (u.targetPath) {
-                r.targetLine.classList.add('show');
-                r.target.textContent = u.targetPath;
-                r.target.title = u.targetPath;
-            } else {
-                r.targetLine.classList.remove('show');
-            }
-
-            if (u.custom) {
-                r.pct.textContent = u.custom.pct || '';
-                r.st.textContent = u.custom.msg || '';
-                r.st.title = r.st.textContent;
-                r.sz.textContent = u.custom.size || formatSize(u.file.size);
-                return;
-            }
-
-            r.sz.textContent = u.status === 'uploading'
-                ? `${formatSize(u.file.size * p)} / ${formatSize(u.file.size)}`
-                : formatSize(u.file.size);
-
-            let pct = '', st = '';
-            switch (u.status) {
-                case 'queued':     st = 'Waiting…'; break;
-                case 'preparing':  st = 'Preparing…'; break;
-                case 'uploading':  pct = Math.floor(p * 100) + '%'; st = u.speed ? formatSize(u.speed) + '/s' : 'Uploading…'; break;
-                case 'committing': pct = '100%'; st = 'Committing to GitHub…'; break;
-                case 'done':       pct = '✓'; st = (u.zipDecision && u.zipDecision.mode === 'extract') ? 'Extracted & uploaded' : 'Uploaded'; break;
-                case 'error':      pct = '✕'; st = u.error || 'Failed'; break;
-                case 'cancelled':  st = 'Cancelled'; break;
-            }
-            r.pct.textContent = pct;
-            r.st.textContent = st;
-            r.st.title = st;
-        }
-
-        function renderUploadSummary() {
-            const total = uploads.length;
-            if (!total) return;
-            const count = s => uploads.filter(u => u.status === s).length;
-            const done = count('done'), failed = count('error'), cancelled = count('cancelled');
-            const settled = done + failed + cancelled;
-            const active = settled < total;
-
-            const w = u => Math.max(u.file.size, 1);
-            const totalW = uploads.reduce((s, u) => s + w(u), 0);
-            const doneW = uploads.reduce((s, u) => s + w(u) * (SETTLED.includes(u.status) ? 1 : u.fraction), 0);
-            const pct = Math.min(100, Math.round((doneW / totalW) * 100));
-
-            upBar.style.width = pct + '%';
-            upOverall.setAttribute('aria-valuenow', pct);
-            upPanel.dataset.state = active ? 'active' : failed ? 'error' : done ? 'done' : 'cancelled';
-
-            const plural = (n, word) => `${n} ${word}${n !== 1 ? 's' : ''}`;
-            if (active) {
-                upTitle.textContent = total === 1 ? 'Uploading 1 file' : `Uploading ${settled + 1} of ${total}`;
-                const cur = uploads.find(u => u.status === 'uploading');
-                upSummary.textContent = pct + '%' + (cur && cur.speed ? ` · ${formatSize(cur.speed)}/s` : '');
-                setStatus(`Uploading… ${pct}%`, 'loading');
-            } else {
-                if (failed)         upTitle.textContent = `${done} uploaded · ${failed} failed`;
-                else if (!done)     upTitle.textContent = 'Upload cancelled';
-                else if (cancelled) upTitle.textContent = `${done} uploaded · ${cancelled} cancelled`;
-                else                upTitle.textContent = `Uploaded ${plural(done, 'file')}`;
-                upSummary.textContent = `${plural(total, 'file')} · ${formatSize(uploads.reduce((s, u) => s + u.file.size, 0))}`;
-            }
-        }
-
-        function finishBatch() {
-            renderUploadSummary();
-            const count = s => uploads.filter(u => u.status === s).length;
-            const done = count('done'), failed = count('error'), cancelled = count('cancelled');
-
-            if (state.connected) load();
-            flashStatus(
-                failed ? `Upload finished (${done} ok, ${failed} failed)`
-                       : cancelled ? `Upload stopped (${done} uploaded)`
-                       : 'Upload complete',
-                failed ? 'err' : 'ok'
-            );
-            if (!failed) {
-                hideTimer = setTimeout(() => { if (!pumping) upPanel.classList.remove('show'); }, cancelled ? 2500 : 4500);
-            }
-        }
-
-        window.addEventListener('beforeunload', e => {
-            if (pumping) { e.preventDefault(); e.returnValue = ''; }
-        });
-
-        $('upToggle').onclick = () => upPanel.classList.toggle('collapsed');
-        $('upClose').onclick = () => upPanel.classList.remove('show');
-        $('upCancel').onclick = () => uploads.forEach(cancelUpload);
-
-        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-        //  NEW FOLDER / NEW FILE
-        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-        async function newFolder() {
-            const name = prompt('Enter folder name:');
-            if (!name || !name.trim()) return;
-            const clean = name.trim().replace(/[\\/]/g, '-');
-            const path = state.path ? `${state.path}/${clean}/.gitkeep` : `${clean}/.gitkeep`;
-            try {
-                await api('PUT', `/contents/${enc(path)}`, {
-                    message: `Create folder ${clean}`,
-                    content: encodeBase64UTF8(''),
-                    branch: state.branch,
-                });
-                load();
-            } catch (e) {
-                console.error('New folder error:', e);
-                alert('Failed to create folder: ' + e.message);
-            }
-        }
-
-        async function newFile() {
-            const name = prompt('Enter new file name (e.g. index.html or notes.md):');
-            if (!name || !name.trim()) return;
-            const clean = name.trim().replace(/[\\/]/g, '-');
-            if (!clean) return;
-
-            const path = state.path ? `${state.path}/${clean}` : clean;
-
-            let existing = null;
-            try {
-                existing = await api('GET', `/contents/${enc(path)}${refQ()}`);
-            } catch (err) {
-                if (err.status !== 404) {
-                    alert('Failed to check file: ' + err.message);
-                    return;
-                }
-            }
-            if (existing) {
-                if (!confirm(`"${clean}" already exists. Open it instead?`)) return;
-                openFile({ path, name: clean, type: 'file', sha: existing.sha, download_url: existing.download_url });
-                return;
-            }
-
-            try {
-                await api('PUT', `/contents/${enc(path)}`, {
-                    message: `Create ${clean}`,
-                    content: encodeBase64UTF8(''),
-                    branch: state.branch,
-                });
-                const data = await api('GET', `/contents/${enc(path)}${refQ()}`);
-                openFile({
-                    path: data.path,
-                    name: data.name,
-                    sha: data.sha,
-                    type: 'file',
-                    download_url: data.download_url
-                });
-            } catch (e) {
-                console.error('New file error:', e);
-                alert('Failed to create file: ' + e.message);
-            }
-        }
-
-        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-        //  HELPERS
-        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-        function setStatus(text, type) {
-            statusEl.textContent = text;
-            statusEl.className = 'status' + (type ? ' ' + type : '');
-        }
-
-        let flashTimer = null;
-        function flashStatus(text, type, ms = 2500) {
-            setStatus(text, type);
-            clearTimeout(flashTimer);
-            flashTimer = setTimeout(() => {
-                if (state.connected && !pumping) setStatus(`✓ Connected: ${state.owner}/${state.repo}`, 'ok');
-            }, ms);
-        }
-
-        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-        //  EVENT BINDING
-        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-        connectBtn.addEventListener('click', connect);
-        repoInput.addEventListener('keydown', e => { if (e.key === 'Enter') connect(); });
-        tokenInput.addEventListener('keydown', e => { if (e.key === 'Enter') connect(); });
-
-        $('uploadBtn').onclick = () => fileInput.click();
-        fileInput.onchange = e => {
-            if (e.target.files.length) {
-                uploadFiles([...e.target.files]);
-                e.target.value = '';
-            }
-        };
-
-        $('newFolder').onclick = newFolder;
-        $('newFileBtn').onclick = newFile;
-        $('refreshBtn').onclick = load;
-
-        drop.onclick = () => fileInput.click();
-        drop.ondragover = e => {
-            e.preventDefault();
-            drop.classList.add('drag');
-        };
-        drop.ondragleave = () => drop.classList.remove('drag');
-        drop.ondrop = e => {
-            e.preventDefault();
-            drop.classList.remove('drag');
-            if (e.dataTransfer.files.length) {
-                uploadFiles([...e.dataTransfer.files]);
-            }
-        };
-
-        edClose.addEventListener('click', closeEditor);
-        edCancel.addEventListener('click', closeEditor);
-        edSave.addEventListener('click', saveFile);
-        edOverlay.addEventListener('click', e => {
-            if (e.target === edOverlay) closeEditor();
-        });
-
-        document.addEventListener('keydown', e => {
-            if (e.key !== 'Escape') return;
-            if (editorFile) { closeEditor(); return; }
-            if (selection.size > 0) { clearSelection(); return; }
-            if (selectMode) setSelectMode(false);
-        });
-
-        window.addEventListener('resize', () => {
-            hideContextMenu();
-            if (cm && edOverlay.classList.contains('open')) cm.refresh();
-        });
-
-        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-        //  AUTO-CONNECT
-        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-        if (savedToken) {
-            setTimeout(connect, 400);
-        }
-    </script>
-</body>
-</html>
+               
