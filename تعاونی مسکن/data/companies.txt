@@ -1,7 +1,0 @@
-# آدرس | نام | آدرس لوگو
-https://www.mapnagroup.com/ | گروه مپنا | https://www.google.com/s2/favicons?domain=mapnagroup.com&sz=128
-https://www.mapnaboiler.com/ | مپنا بویلر | https://www.google.com/s2/favicons?domain=mapnaboiler.com&sz=128
-https://www.mapnaturbine.com/ | توگا | https://www.google.com/s2/favicons?domain=mapnaturbine.com&sz=128
-https://www.mapnaec.com/ | مکو | https://www.google.com/s2/favicons?domain=mapnaec.com&sz=128
-https://www.mapnablade.com/ | پرتو | https://www.google.com/s2/favicons?domain=mapnablade.com&sz=128
-https://www.mavadkaran.com/ | موادکاران | https://www.google.com/s2/favicons?domain=mavadkaran.com&sz=128
