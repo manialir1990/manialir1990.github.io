@@ -1,0 +1,12 @@
+<!doctype html><html lang="fa" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="dark light"><title>ثبت‌نام</title><link rel="stylesheet" href="css/theme.css"></head><body>
+<div class="trail"><i></i><i></i><i></i></div>
+<main class="wrap"><section class="hero"><div class="card" style="width:min(420px,100%)"><h1>ثبت‌نام</h1>
+<input id="fn" placeholder="نام"><input id="ln" placeholder="نام خانوادگی"><input id="ni" placeholder="کد ملی" inputmode="numeric" maxlength="10"><input id="mb" placeholder="شماره موبایل" inputmode="numeric" maxlength="11"><input id="cd" placeholder="کد تاییدیه">
+<button id="go" style="width:100%">ثبت درخواست</button><div class="msg" id="ms"></div><p><a href="index.html" style="color:var(--ac)">بازگشت به ورود</a></p></div></section></main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script><script src="js/config.js"></script><script src="js/app.js"></script>
+<script>
+const M={invalid:'اطلاعات واردشده معتبر نیست (کد ملی ۱۰ رقم، موبایل ۱۱ رقم)',exists:'این کد ملی قبلاً عضو شده است',pending:'درخواست این کد ملی در انتظار تایید است',ok:'درخواست شما ثبت شد. پس از تایید ادمین با کد ملی و رمز اولیه وارد شوید.'};
+$('#go').onclick=async()=>{const ms=$('#ms');ms.style.color='var(--bad)';ms.textContent='';
+ const r=await sb.rpc('submit_signup',{nid:nd($('#ni').value),fn:$('#fn').value.trim(),ln:$('#ln').value.trim(),mob:nd($('#mb').value),code:nd($('#cd').value)});
+ if(r.error)return ms.textContent=r.error.message;if(r.data==='ok')ms.style.color='var(--ac)';ms.textContent=M[r.data]||r.data};
+</script></body></html>
