@@ -4,9 +4,9 @@
 *{box-sizing:border-box}
 body{margin:0;font-family:Vazirmatn,Tahoma,sans-serif;color:var(--tx);direction:rtl;min-height:100vh;background:var(--bg)}
 .trail{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:0}
-.trail::after{content:'';position:absolute;inset:0;background:linear-gradient(163deg,transparent 0,transparent 1px,var(--brick) 1px,var(--brick) 14px,transparent 14px),linear-gradient(161deg,transparent 0,var(--brick2) 1px,var(--brick) 2px,var(--brick) 15px,transparent 15px),linear-gradient(343deg,transparent 0,transparent 1px,var(--brick) 1px,var(--brick) 14px,transparent 14px),linear-gradient(343deg,transparent 0,transparent 1px,var(--brick) 1px,var(--brick) 14px,transparent 14px);background-position:2px 1px,23px 16px,48px 15px,21px 30px;background-size:48px 30px}
-.trail i{position:absolute;left:0;top:45%;width:340px;height:110px;transform-origin:0 0;background:radial-gradient(ellipse at 88% 50%,#fff 0,var(--ac) 12%,#38e1c866 38%,transparent 70%);animation:tr 11s linear infinite}
-.trail i:nth-child(2){top:78%;animation-delay:-4s;animation-duration:13s}.trail i:nth-child(3){top:105%;animation-delay:-8s;animation-duration:15s}
+.brick .trail::after{content:'';position:absolute;inset:0;background:linear-gradient(163deg,transparent 0,transparent 1px,var(--brick) 1px,var(--brick) 14px,transparent 14px),linear-gradient(161deg,transparent 0,var(--brick2) 1px,var(--brick) 2px,var(--brick) 15px,transparent 15px),linear-gradient(343deg,transparent 0,transparent 1px,var(--brick) 1px,var(--brick) 14px,transparent 14px),linear-gradient(343deg,transparent 0,transparent 1px,var(--brick) 1px,var(--brick) 14px,transparent 14px);background-position:2px 1px,23px 16px,48px 15px,21px 30px;background-size:48px 30px}
+.brick .trail i{position:absolute;left:0;top:45%;width:340px;height:110px;transform-origin:0 0;background:radial-gradient(ellipse at 88% 50%,#fff 0,var(--ac) 12%,#38e1c866 38%,transparent 70%);animation:tr 11s linear infinite}
+.brick .trail i:nth-child(2){top:78%;animation-delay:-4s;animation-duration:13s}.brick .trail i:nth-child(3){top:105%;animation-delay:-8s;animation-duration:15s}
 @keyframes tr{from{transform:rotate(-17deg) translateX(-400px)}to{transform:rotate(-17deg) translateX(calc(100vw + 500px))}}
 main,header,aside{position:relative;z-index:1}
 h1,h2,h3{text-shadow:var(--glow);margin:.4em 0}
@@ -57,3 +57,17 @@ button.sec.on{background:linear-gradient(135deg,var(--ac),var(--ac2));color:var(
 @keyframes pl{50%{box-shadow:0 0 14px 3px #ff3b5c;transform:scale(1.15)}}
 #burger .bd{position:absolute;top:2px;left:2px;min-width:17px;height:17px;padding:0 4px;margin:0;justify-content:center;gap:0;border-radius:99px;background:#ff3b5c;color:#fff;font-size:.62rem}
 #burger .bd::before{display:none}
+
+body:not(.brick) .trail::after{content:'';position:absolute;inset:0;background:url(../img/logo-bg-dark.png) center/min(90vw,780px) no-repeat;opacity:.22}
+@media(prefers-color-scheme:light){body:not(.brick) .trail::after{background-image:url(../img/logo-bg.png);opacity:.3}}
+body:not(.brick) .trail i{position:absolute;left:50%;top:50%;width:300px;height:300px;margin:-150px 0 0 -150px;border-radius:50%;background:radial-gradient(circle,#ffe27add 0,#ffb30099 38%,transparent 70%);filter:blur(14px);animation:orb 14s linear infinite}
+body:not(.brick) .trail i:nth-child(2){--r:min(20vw,170px);width:200px;height:200px;margin:-100px 0 0 -100px;animation-duration:9s;animation-direction:reverse}
+body:not(.brick) .trail i:nth-child(3){--r:min(36vw,330px);animation-duration:19s;animation-delay:-6s}
+@keyframes orb{from{transform:rotate(0) translateX(var(--r,min(28vw,250px)))}to{transform:rotate(360deg) translateX(var(--r,min(28vw,250px)))}}
+@property --a{syntax:'<angle>';initial-value:0deg;inherits:false}
+@keyframes ang{to{--a:360deg}}
+.hero{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px}
+.logo-wrap{position:relative;width:min(340px,82vw);margin-top:44px}
+.logo-wrap::before{content:'';position:absolute;inset:-5px;border-radius:30px;background:conic-gradient(from var(--a),transparent 0 45%,#ffe27a 70%,#ffb300 86%,transparent 100%);filter:blur(11px);animation:ang 4.5s linear infinite}
+.logo-wrap::after{content:'';position:absolute;inset:0;border-radius:24px;box-shadow:0 0 34px #ffb30040;pointer-events:none}
+.logo{position:relative;z-index:1;display:block;width:100%;border-radius:24px;box-shadow:0 0 0 1px #0003}
