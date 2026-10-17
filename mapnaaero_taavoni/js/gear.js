@@ -1,0 +1,11 @@
+(()=>{const g=document.querySelector('#gear'),h=document.querySelector('#gh');if(!g||!h)return;
+const P=360/14;let rot=0,last=null,vel=0,raf=0,tooth=0,lv=0,lm=0;
+const ang=e=>{const r=h.getBoundingClientRect();return Math.atan2(e.clientY-(r.top+r.height/2),e.clientX-(r.left+r.width/2))*180/Math.PI};
+const buzz=()=>{const n=performance.now();if(navigator.vibrate&&n-lv>28){lv=n;navigator.vibrate(8)}};
+const set=d=>{rot+=d;g.style.transform=`rotate(${rot}deg)`;const t=Math.floor(rot/P);if(t!==tooth){tooth=t;buzz()}};
+const coast=()=>{vel*=.94;if(Math.abs(vel)<.08)return;set(vel);raf=requestAnimationFrame(coast)};
+h.addEventListener('pointerdown',e=>{cancelAnimationFrame(raf);h.setPointerCapture(e.pointerId);last=ang(e);vel=0;lm=performance.now()});
+h.addEventListener('pointermove',e=>{if(last==null)return;const a=ang(e);let d=a-last;if(d>180)d-=360;if(d<-180)d+=360;last=a;vel=.6*vel+.4*d;lm=performance.now();set(d)});
+const up=()=>{if(last==null)return;last=null;if(performance.now()-lm>90)vel=0;raf=requestAnimationFrame(coast)};
+h.addEventListener('pointerup',up);h.addEventListener('pointercancel',up);
+})();
