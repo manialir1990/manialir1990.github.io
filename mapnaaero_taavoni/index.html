@@ -1,6 +1,6 @@
 <!doctype html><html lang="fa" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="dark light"><title>تعاونی مسکن مپنا هوایی</title><link rel="stylesheet" href="css/theme.css"></head><body class="brick">
 <div class="trail"><i></i><i></i><i></i></div>
-<main class="wrap"><section class="hero"><div class="logo-wrap"><picture><source media="(prefers-color-scheme:dark)" srcset="img/logo-bg-dark.png"><img class="logo" src="img/logo-bg.png" alt="تعاونی مسکن گروه مپنا"></picture></div><div class="card" style="width:min(420px,100%)"><div id="lg"><input id="u" placeholder="کد ملی" inputmode="numeric"><input id="p" type="password" placeholder="رمز عبور"><button id="go" style="width:100%">ورود</button>
+<main class="wrap"><section class="hero"><div class="logo-wrap"><div class="gear-box"><img class="gear-back" src="img/gear-back.png" alt=""><img id="gear" class="gear" src="img/gear.png" alt=""></div><picture><source media="(prefers-color-scheme:dark)" srcset="img/logo-front-dark.png"><img class="logo" src="img/logo-front.png" alt="تعاونی مسکن گروه مپنا"></picture><div class="gear-box" id="gh"></div></div><div class="card" style="width:min(420px,100%)"><div id="lg"><input id="u" placeholder="کد ملی" inputmode="numeric"><input id="p" type="password" placeholder="رمز عبور"><button id="go" style="width:100%">ورود</button>
 <p><a href="#" id="fl" style="color:var(--ac)">فراموشی رمز عبور</a> &nbsp;|&nbsp; <a href="register.html" style="color:var(--ac)">ثبت‌نام</a></p></div>
 <div id="fg" hidden><h3>بازیابی رمز عبور</h3><input id="fu" placeholder="کد ملی" inputmode="numeric"><input id="fe" type="email" placeholder="ایمیل ثبت‌شده"><button id="fs" style="width:100%">ارسال کد بازیابی</button>
 <div id="s2" hidden><input id="fc" placeholder="کد بازیابی" inputmode="numeric"><input id="fp" type="password" placeholder="رمز عبور جدید"><input id="fq" type="password" placeholder="تکرار رمز عبور جدید"><button id="fr" style="width:100%">تغییر رمز عبور</button></div>
@@ -23,4 +23,4 @@ $('#fr').onclick=async()=>{const p=nd($('#fp').value);if(p.length<6)return ms('�
  const r=await sb.functions.invoke('forgot-password',{body:{action:'reset',nid:nd($('#fu').value),code:nd($('#fc').value),password:p}});
  if(r.error||!r.data?.ok)return ms('کد نادرست یا منقضی شده است');show(false);ms('رمز عبور تغییر کرد. وارد شوید.',1)};
 me().then(m=>{if(m)location='dashboard.html'});
-</script></body></html>
+</script><script src="js/gear.js"></script></body></html>
