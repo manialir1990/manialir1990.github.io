@@ -1,0 +1,10 @@
+<!doctype html><html lang="fa" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#0b0907"><link href="https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@400;700&family=Cinzel+Decorative:wght@700&family=Orbitron:wght@700&family=Vazirmatn:wght@400;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="css/base.css"><title>Money Mining</title><link rel="stylesheet" href="css/coin3d.css"><link rel="stylesheet" href="css/landing.css"><link rel="stylesheet" href="css/mining.css"></head>
+<body><div class="bg"></div><div class="bg-light"></div>
+<nav class="top"><a id="adminLink" href="admin.html" hidden>ادمین</a><button id="logout" type="button">خروج</button></nav>
+<main class="mine">
+<section class="stage" id="stage" aria-label="سکه Money"><div class="glow"></div><div class="shadow" id="shadow" style="opacity:.9"></div><div class="coin-wrap" id="coinWrap"><div class="coin3d" id="coin"></div></div></section>
+<p class="hint">سکه را به چپ یا راست بکش (یا لمس کن) تا Mine کنی</p>
+</main>
+<div class="box dia" id="diaBox"><span id="diaIcon"></span><b class="num" id="diaNum">0</b></div>
+<div class="box wallet"><img src="assets/coin-front.png" alt=""><b class="num" id="coinNum">0.0000</b></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script><script src="js/utils.js"></script><script src="js/config.js"></script><script src="js/coin3d.js"></script><script src="js/mining.js"></script></body></html>
