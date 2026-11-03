@@ -9,7 +9,7 @@
 
   const DIA='<svg viewBox="0 0 64 64"><polygon points="32,4 56,22 32,60 8,22" fill="#b27cff"/><polygon points="32,4 44,22 20,22" fill="#e6d3ff"/><polygon points="8,22 20,22 32,60" fill="#8a4fe0"/><polygon points="56,22 44,22 32,60" fill="#6f33c9"/><polygon points="20,22 44,22 32,60" fill="#a368f5"/></svg>';
   $('diaIcon').innerHTML=DIA;
-  let coins=+P.coins,last=+P.last_amount,spins=P.spins,dia=P.diamonds,pend=P.pending_diamonds,inflight=0,rot=0,queue=Promise.resolve();
+  let coins=+P.coins,last=+P.last_amount,spins=P.spins,dia=P.diamonds,awarded=P.diamonds+P.pending_diamonds,col=0,inflight=0,rot=0,queue=Promise.resolve();
   const render=()=>{$('coinNum').textContent=coins.toFixed(4);$('diaNum').textContent=dia};
   render();
 
@@ -37,8 +37,8 @@
       drag=false;el.classList.remove('drag');
       const b=box.getBoundingClientRect();
       if(e.clientX>=b.left&&e.clientX<=b.right&&e.clientY>=b.top&&e.clientY<=b.bottom){
-        el.remove();dia++;pend=Math.max(0,pend-1);render();MC.vib([20,30,20]);
-        const {data}=await sb.rpc('collect_diamond');if(data){dia=data.diamonds;pend=data.pending_diamonds;render()}
+        el.remove();dia++;render();MC.vib([20,30,20]);col++;
+        queue=queue.then(()=>sb.rpc('collect_diamond')).then(({data})=>{col--;if(data&&col===0){dia=data.diamonds;render()}}).catch(()=>{col=Math.max(0,col-1)});
       }
     });
   }
@@ -50,9 +50,9 @@
     queue=queue.then(()=>sb.rpc('spin')).then(({data,error})=>{
       inflight--;
       if(error||!data)return;
-      if(+data.pending_diamonds>pend){pend=+data.pending_diamonds;release()}
+      const tot=(+data.diamonds)+(+data.pending_diamonds);if(tot>awarded){awarded=tot;release()}
       if(inflight===0){coins=+data.coins;last=+data.last_amount;spins=data.spins;render()}
-    });
+    }).catch(()=>{inflight=Math.max(0,inflight-1)});
   }
   let x0=null;
   stage.addEventListener('pointerdown',e=>{x0=e.clientX});
