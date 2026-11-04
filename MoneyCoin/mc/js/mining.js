@@ -19,7 +19,7 @@
   function fly(a){
     const r=coin.getBoundingClientRect(),el=document.createElement('div');
     el.className='fly';el.textContent='+'+a.toFixed(6);
-    el.style.left=(r.left+r.width/2+(Math.random()*40-20))+'px';el.style.top=(r.top-10)+'px';
+    el.style.left=(r.left+r.width/2+(Math.random()*90-70))+'px';el.style.top=(r.top-10)+'px';
     document.body.appendChild(el);el.addEventListener('animationend',()=>el.remove());
   }
 
