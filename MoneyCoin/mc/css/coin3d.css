@@ -1,0 +1,3 @@
+.coin3d{position:absolute;inset:0;transform-style:preserve-3d}
+.coin3d .slice{position:absolute;inset:1px;border-radius:50%;background:linear-gradient(90deg,#8a5d12,#f5c542,#8a5d12)}
+.coin3d .face{position:absolute;inset:0;width:100%;height:100%;backface-visibility:hidden;-webkit-backface-visibility:hidden;user-select:none;-webkit-user-drag:none}
