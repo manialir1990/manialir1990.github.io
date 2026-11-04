@@ -1,0 +1,21 @@
+-- Run once in Supabase > SQL Editor (for a database that already ran schema.sql).
+-- Diamond every 50-60 spins; first spin mines 0.00005.
+alter table public.profiles alter column next_drop set default (50+floor(random()*11))::int;
+update public.profiles set next_drop=spins+50+floor(random()*11)::int;
+-- Optional: also halve the current per-spin amount of existing users (their totals stay as they are):
+-- update public.profiles set last_amount=last_amount/2;
+
+create or replace function public.spin() returns public.profiles language plpgsql security definer set search_path=public as $$
+declare p public.profiles;
+begin
+  select * into p from public.profiles where id=auth.uid() for update;
+  if p.id is null or p.banned then raise exception 'denied'; end if;
+  p.last_amount := case when p.spins=0 then 0.00005 else round(p.last_amount*1.001,10) end;
+  p.coins := p.coins+p.last_amount; p.spins := p.spins+1;
+  if p.spins>=p.next_drop then
+    p.pending_diamonds := p.pending_diamonds+1;
+    p.next_drop := p.spins+50+floor(random()*11)::int;
+  end if;
+  update public.profiles set coins=p.coins,last_amount=p.last_amount,spins=p.spins,pending_diamonds=p.pending_diamonds,next_drop=p.next_drop where id=p.id;
+  return p;
+end $$;
