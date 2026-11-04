@@ -1,0 +1,10 @@
+MC.SB_URL='https://wujjcktkrmnvgrfstcyl.supabase.co';
+MC.SB_KEY='sb_publishable_JfyJ9dhXOcoqgS2ExGQ02Q_-8FB3Q9n';
+MC.sb=window.supabase.createClient(MC.SB_URL,MC.SB_KEY);
+MC.errFa=m=>{m=String(m||'');
+  if(/Invalid login/i.test(m))return 'ایمیل یا رمز عبور اشتباه است.';
+  if(/not confirmed/i.test(m))return 'ابتدا ایمیل خود را از طریق لینک ارسال‌شده تأیید کن.';
+  if(/already/i.test(m))return 'این ایمیل قبلاً ثبت‌نام شده است.';
+  if(/Password should/i.test(m))return 'رمز عبور باید حداقل ۶ کاراکتر باشد.';
+  if(/rate limit/i.test(m))return 'تعداد درخواست‌ها زیاد است؛ کمی بعد دوباره تلاش کن.';
+  return 'خطا: '+m};
