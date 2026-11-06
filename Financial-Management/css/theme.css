@@ -1,0 +1,259 @@
+/* ==========================================================================
+   theme.css — توکن‌های رنگ، تم تیره (پیش‌فرض) و روشن (هماهنگ با سیستم)،
+   لایه‌های پس‌زمینه: تصویر دلار، الگوی آجر و رد نور
+   فقط همین فایل را ویرایش کنید تا ترکیب رنگی کل سایت عوض شود.
+   ========================================================================== */
+
+:root {
+  color-scheme: dark light;
+
+  /* زمینه‌ها */
+  --bg-0: #0b1120;
+  --bg-1: #101a2e;
+  --bg-2: #16233d;
+  --surface: rgba(18, 28, 50, 0.74);
+  --surface-strong: rgba(22, 34, 60, 0.92);
+  --surface-2: rgba(32, 46, 78, 0.62);
+  --surface-hover: rgba(44, 62, 104, 0.55);
+  --overlay: rgba(4, 8, 18, 0.72);
+
+  /* متن */
+  --text: #e7edfb;
+  --text-strong: #f6f9ff;
+  --text-dim: #a4b3d4;
+  --text-faint: #72849f;
+
+  /* حاشیه */
+  --border: rgba(150, 180, 255, 0.14);
+  --border-strong: rgba(150, 180, 255, 0.28);
+
+  /* رنگ اصلی (طلایی پول) */
+  --accent: #f5c451;
+  --accent-strong: #ffd978;
+  --accent-soft: rgba(245, 196, 81, 0.14);
+  --accent-glow: rgba(245, 196, 81, 0.55);
+  --on-accent: #1a1204;
+
+  /* درآمد / بدهی / هشدار / اطلاعات */
+  --income: #34d399;
+  --income-soft: rgba(52, 211, 153, 0.13);
+  --income-glow: rgba(52, 211, 153, 0.5);
+  --debt: #fb7185;
+  --debt-soft: rgba(251, 113, 133, 0.13);
+  --debt-glow: rgba(251, 113, 133, 0.5);
+  --danger: #ff6b7d;
+  --danger-soft: rgba(255, 107, 125, 0.14);
+  --warning: #fbbf24;
+  --warning-soft: rgba(251, 191, 36, 0.14);
+  --info: #60a5fa;
+  --info-soft: rgba(96, 165, 250, 0.14);
+  --success: #34d399;
+  --success-soft: rgba(52, 211, 153, 0.14);
+
+  /* نمودار عقربه‌ای */
+  --gauge-1: #ef4444;
+  --gauge-2: #f59e0b;
+  --gauge-3: #a3e635;
+  --gauge-4: #22c55e;
+  --gauge-track: rgba(150, 180, 255, 0.1);
+  --gauge-needle: #f6f9ff;
+
+  /* آجر و رد نور */
+  --brick-line: rgba(150, 180, 255, 0.07);
+  --brick-trail: rgba(245, 196, 81, 0.85);
+  --photo-opacity: 0.34;
+  --photo-filter: saturate(0.9) blur(1.5px);
+  --veil-top: rgba(11, 17, 32, 0.55);
+  --veil-bottom: rgba(11, 17, 32, 0.9);
+
+  /* سایه و درخشش */
+  --shadow-sm: 0 2px 10px rgba(0, 0, 0, 0.28);
+  --shadow-md: 0 10px 30px rgba(0, 0, 0, 0.35);
+  --shadow-lg: 0 24px 60px rgba(0, 0, 0, 0.5);
+  --glow-sm: 0 0 18px var(--accent-glow);
+  --text-glow: 0 0 18px var(--accent-glow);
+  --scroll-thumb: rgba(150, 180, 255, 0.28);
+
+  /* هندسه */
+  --radius-xs: 6px;
+  --radius-sm: 10px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
+  --radius-pill: 999px;
+
+  /* حرکت */
+  --t-fast: 140ms;
+  --t-med: 260ms;
+  --t-slow: 520ms;
+  --ease: cubic-bezier(0.22, 0.8, 0.24, 1);
+
+  /* ابعاد قالب */
+  --topbar-h: 64px;
+  --clockbar-h: 34px;
+  --content-max: 1240px;
+  --gutter: clamp(12px, 3.4vw, 28px);
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg-0: #eef2f9;
+    --bg-1: #e4ebf7;
+    --bg-2: #d8e2f3;
+    --surface: rgba(255, 255, 255, 0.78);
+    --surface-strong: rgba(255, 255, 255, 0.95);
+    --surface-2: rgba(232, 239, 252, 0.8);
+    --surface-hover: rgba(214, 226, 250, 0.9);
+    --overlay: rgba(20, 32, 58, 0.45);
+
+    --text: #1c2a47;
+    --text-strong: #0d1730;
+    --text-dim: #4b5d82;
+    --text-faint: #7487a8;
+
+    --border: rgba(40, 70, 130, 0.14);
+    --border-strong: rgba(40, 70, 130, 0.28);
+
+    --accent: #b9770e;
+    --accent-strong: #8f5900;
+    --accent-soft: rgba(185, 119, 14, 0.12);
+    --accent-glow: rgba(185, 119, 14, 0.38);
+    --on-accent: #ffffff;
+
+    --income: #059669;
+    --income-soft: rgba(5, 150, 105, 0.11);
+    --income-glow: rgba(5, 150, 105, 0.35);
+    --debt: #dc2650;
+    --debt-soft: rgba(220, 38, 80, 0.1);
+    --debt-glow: rgba(220, 38, 80, 0.35);
+    --danger: #d0213f;
+    --danger-soft: rgba(208, 33, 63, 0.1);
+    --warning: #b7791f;
+    --warning-soft: rgba(183, 121, 31, 0.13);
+    --info: #2563eb;
+    --info-soft: rgba(37, 99, 235, 0.1);
+    --success: #059669;
+    --success-soft: rgba(5, 150, 105, 0.12);
+
+    --gauge-track: rgba(40, 70, 130, 0.1);
+    --gauge-needle: #0d1730;
+
+    --brick-line: rgba(40, 70, 130, 0.09);
+    --brick-trail: rgba(185, 119, 14, 0.8);
+    --photo-opacity: 0.2;
+    --photo-filter: saturate(0.7) blur(1.5px);
+    --veil-top: rgba(238, 242, 249, 0.6);
+    --veil-bottom: rgba(238, 242, 249, 0.92);
+
+    --shadow-sm: 0 2px 8px rgba(30, 50, 100, 0.1);
+    --shadow-md: 0 10px 28px rgba(30, 50, 100, 0.14);
+    --shadow-lg: 0 24px 56px rgba(30, 50, 100, 0.22);
+    --glow-sm: 0 0 14px var(--accent-glow);
+    --text-glow: 0 0 10px var(--accent-glow);
+    --scroll-thumb: rgba(40, 70, 130, 0.3);
+  }
+}
+
+/* ---------------- لایه‌های پس‌زمینه ---------------- */
+
+.bg-stack {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+  background:
+    radial-gradient(1200px 700px at 85% -10%, var(--bg-2), transparent 70%),
+    radial-gradient(900px 600px at 0% 110%, var(--bg-1), transparent 65%),
+    var(--bg-0);
+}
+
+.bg-photo {
+  position: absolute;
+  inset: -3%;
+  background-size: cover;
+  background-position: center;
+  opacity: var(--photo-opacity);
+  filter: var(--photo-filter);
+  animation: bg-drift 60s ease-in-out infinite alternate;
+}
+
+/* آجر: کاشی SVG با درزهای ریز */
+.bg-bricks {
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='80'%3E%3Cg fill='none' stroke='%23fff' stroke-width='2'%3E%3Cpath d='M0 1H120M0 41H120M1 0V40M61 40V80'/%3E%3C/g%3E%3C/svg%3E");
+  background-size: 120px 80px;
+  -webkit-mask-image: linear-gradient(#000, #000);
+  mask-image: linear-gradient(#000, #000);
+  background-color: transparent;
+  opacity: 1;
+  mix-blend-mode: normal;
+  /* رنگ درز: روی کاشی سفید، با فیلتر به رنگ توکن درمی‌آید */
+  filter: opacity(0.1);
+}
+
+/* رد نور روی درزهای آجر: ماسک کاشی ∩ لکه‌ی نور متحرک */
+.bg-trail {
+  position: absolute;
+  inset: 0;
+  background: var(--brick-trail);
+  -webkit-mask-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='80'%3E%3Cg fill='none' stroke='%23000' stroke-width='2'%3E%3Cpath d='M0 1H120M0 41H120M1 0V40M61 40V80'/%3E%3C/g%3E%3C/svg%3E"),
+    linear-gradient(115deg, transparent 38%, #000 50%, transparent 62%);
+  mask-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='80'%3E%3Cg fill='none' stroke='%23000' stroke-width='2'%3E%3Cpath d='M0 1H120M0 41H120M1 0V40M61 40V80'/%3E%3C/g%3E%3C/svg%3E"),
+    linear-gradient(115deg, transparent 38%, #000 50%, transparent 62%);
+  -webkit-mask-size: 120px 80px, 320% 100%;
+  mask-size: 120px 80px, 320% 100%;
+  -webkit-mask-repeat: repeat, no-repeat;
+  mask-repeat: repeat, no-repeat;
+  -webkit-mask-composite: source-in;
+  mask-composite: intersect;
+  -webkit-mask-position: 0 0, 120% 0;
+  mask-position: 0 0, 120% 0;
+  opacity: 0.55;
+  animation: trail-run 11s linear infinite;
+}
+
+.bg-vignette {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, var(--veil-top), transparent 30%, var(--veil-bottom) 100%),
+    radial-gradient(ellipse at center, transparent 40%, rgba(0, 0, 0, 0.35) 100%);
+}
+
+.bg-floaters {
+  position: absolute;
+  inset: 0;
+}
+
+.bg-floater {
+  position: absolute;
+  bottom: -80px;
+  inset-inline-start: var(--x);
+  font-size: var(--size);
+  font-weight: 800;
+  color: var(--accent);
+  opacity: 0;
+  animation: float-up var(--dur) linear var(--delay) infinite;
+  text-shadow: 0 0 22px var(--accent-glow);
+  font-family: Georgia, 'Times New Roman', serif;
+}
+
+@media (prefers-color-scheme: light) {
+  .bg-bricks {
+    filter: opacity(0.13) invert(1);
+  }
+  .bg-vignette {
+    background:
+      linear-gradient(180deg, var(--veil-top), transparent 30%, var(--veil-bottom) 100%),
+      radial-gradient(ellipse at center, transparent 55%, rgba(120, 140, 190, 0.22) 100%);
+  }
+}
+
+/* متن درخشان */
+.glow-text {
+  color: var(--accent);
+  text-shadow: var(--text-glow);
+}

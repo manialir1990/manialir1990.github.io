@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="dark light">
+  <meta name="theme-color" content="#0b1120" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#eef2f9" media="(prefers-color-scheme: light)">
+  <meta name="description" content="مدیریت هزینه‌ها و اقساط: ثبت درآمد و بدهی، تقویم شمسی و نمودار وضعیت مالی ماه آینده">
+  <meta name="robots" content="noindex">
+  <title>بازیابی رمز عبور | مدیریت هزینه‌ها و اقساط</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23f5c451'/%3E%3Ctext x='32' y='46' font-size='40' font-weight='700' text-anchor='middle' font-family='Georgia,serif' fill='%231a1204'%3E$%3C/text%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/theme.css">
+  <link rel="stylesheet" href="../css/animations.css">
+  <link rel="stylesheet" href="../css/layout.css">
+  <link rel="stylesheet" href="../css/components.css">
+  <link rel="stylesheet" href="../css/toast.css">
+  <link rel="stylesheet" href="../css/auth.css">
+  <link rel="stylesheet" href="../css/responsive.css">
+</head>
+<body>
+  <noscript>برای استفاده از این برنامه باید جاوااسکریپت مرورگر فعال باشد.</noscript>
+
+  <main class="auth">
+    <div class="auth-wrap">
+      <section class="card auth-card" aria-labelledby="forgot-title">
+        <div class="auth-card__logo" aria-hidden="true">$</div>
+        <h1 class="auth-card__title" id="forgot-title">بازیابی رمز عبور</h1>
+        <p class="auth-card__lead">ایمیل حساب خود را وارد کنید تا لینک تعیین رمز جدید برایتان ارسال شود.</p>
+
+        <div id="forgot-message" class="form-message" role="alert" hidden></div>
+
+        <form id="forgot-form" novalidate>
+        <div class="field">
+          <label class="field__label" for="email">ایمیل</label>
+          <div class="field__control">
+            <span class="field__icon" data-icon="mail"></span>
+            <input class="input input--icon input--ltr" id="email" name="email" type="email" inputmode="email" autocomplete="email" placeholder="example@mail.com" required>
+          </div>
+        </div>
+          <button class="btn btn--primary btn--block auth-submit" id="forgot-submit" type="submit" style="margin-top:22px">ارسال لینک بازیابی</button>
+        </form>
+
+        <div class="auth-card__foot">
+          <a href="../index.html">بازگشت به صفحه‌ی ورود</a>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <script type="module" src="../js/forgot-page.js"></script>
+</body>
+</html>

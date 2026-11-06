@@ -1,0 +1,200 @@
+/* ==========================================================================
+   forms.css — صفحه‌ی ورود اطلاعات مالی: فرم، تاریخ، تکرار، نوار بازه
+   ========================================================================== */
+
+.entry-card[data-kind='income'] { --kind-color: var(--income); --kind-soft: var(--income-soft); }
+.entry-card[data-kind='debt'] { --kind-color: var(--debt); --kind-soft: var(--debt-soft); }
+
+.entry-card {
+  border-color: color-mix(in srgb, var(--kind-color, var(--accent)) 30%, var(--border));
+  transition: border-color var(--t-med) ease, box-shadow var(--t-med) ease;
+  box-shadow: var(--shadow-md), 0 0 60px var(--kind-soft, transparent);
+}
+
+.entry-form {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 16px clamp(12px, 2vw, 20px);
+  align-items: start;
+}
+
+.entry-form .field + .field {
+  margin-top: 0;
+}
+
+.entry-form__kind { grid-column: span 4; }
+.entry-form__date { grid-column: span 8; }
+.entry-form__title { grid-column: span 8; }
+.entry-form__amount { grid-column: span 4; }
+.entry-form__repeat { grid-column: 1 / -1; }
+.entry-form__actions { grid-column: 1 / -1; display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+
+.entry-form .btn--primary {
+  min-width: 190px;
+}
+
+/* ---------------- انتخاب تاریخ با سه دراپ‌لیست ---------------- */
+
+.date-select {
+  display: grid;
+  grid-template-columns: 0.9fr 1.5fr 1.1fr;
+  gap: 10px;
+}
+
+.date-select__cell .select {
+  padding-inline-start: 12px;
+}
+
+/* ---------------- بخش تکرار ---------------- */
+
+.repeat-box {
+  border-radius: var(--radius-md);
+  border: 1px dashed var(--border-strong);
+  background: var(--surface-2);
+  padding: 14px 16px;
+  transition: border-color var(--t-med) ease, background var(--t-med) ease;
+}
+
+.repeat-box:has(#repeat:checked) {
+  border-style: solid;
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.repeat-box__toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 700;
+}
+
+.repeat-panel {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 14px 18px;
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+  animation: rise-in 0.35s var(--ease);
+}
+
+.repeat-panel__preview {
+  grid-column: 1 / -1;
+  margin: 0;
+  font-size: 0.88rem;
+  color: var(--text-dim);
+  min-height: 1.4em;
+}
+
+.count-control {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.count-control .input {
+  max-width: 120px;
+  text-align: center;
+  font-weight: 800;
+}
+
+.count-control__unit {
+  color: var(--text-dim);
+  font-weight: 600;
+}
+
+.amount-hint {
+  min-height: 1.3em;
+  font-size: 0.82rem;
+  color: var(--accent);
+  font-weight: 600;
+}
+
+/* ---------------- نوار انتخاب بازه ---------------- */
+
+.period-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 14px;
+  padding: 12px 14px;
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+}
+
+.period-bar__buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.period-btn {
+  min-height: 40px;
+  padding: 6px 16px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--border-strong);
+  background: var(--surface-2);
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--text-dim);
+  transition: background var(--t-fast) ease, color var(--t-fast) ease, box-shadow var(--t-med) ease, border-color var(--t-fast) ease;
+}
+
+.period-btn:hover {
+  border-color: var(--accent);
+  color: var(--text-strong);
+}
+
+.period-btn.is-active {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--accent);
+  box-shadow: 0 0 18px var(--accent-soft);
+}
+
+.period-bar__label {
+  margin-inline-start: auto;
+  font-weight: 700;
+  color: var(--text-strong);
+  font-size: 0.92rem;
+}
+
+.period-summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.mini-stat {
+  padding: 10px 14px;
+  border-radius: var(--radius-md);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  text-align: center;
+}
+
+.mini-stat small {
+  display: block;
+  color: var(--text-faint);
+}
+
+.mini-stat strong {
+  font-size: 1.05rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.mini-stat--income strong { color: var(--income); }
+.mini-stat--debt strong { color: var(--debt); }
+.mini-stat[data-sign='positive'] strong { color: var(--income); }
+.mini-stat[data-sign='negative'] strong { color: var(--debt); }
+
+.repeat-panel .field + .field {
+  margin-top: 0;
+}
+
+.entry-form__kind .segmented {
+  grid-auto-flow: column;
+}

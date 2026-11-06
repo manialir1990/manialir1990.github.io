@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="dark light">
+  <meta name="theme-color" content="#0b1120" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#eef2f9" media="(prefers-color-scheme: light)">
+  <meta name="description" content="مدیریت هزینه‌ها و اقساط: ثبت درآمد و بدهی، تقویم شمسی و نمودار وضعیت مالی ماه آینده">
+  <meta name="robots" content="noindex">
+  <title>داشبورد وضعیت مالی | مدیریت هزینه‌ها و اقساط</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23f5c451'/%3E%3Ctext x='32' y='46' font-size='40' font-weight='700' text-anchor='middle' font-family='Georgia,serif' fill='%231a1204'%3E$%3C/text%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/theme.css">
+  <link rel="stylesheet" href="../css/animations.css">
+  <link rel="stylesheet" href="../css/layout.css">
+  <link rel="stylesheet" href="../css/components.css">
+  <link rel="stylesheet" href="../css/toast.css">
+  <link rel="stylesheet" href="../css/dashboard.css">
+  <link rel="stylesheet" href="../css/gauge.css">
+  <link rel="stylesheet" href="../css/forms.css">
+  <link rel="stylesheet" href="../css/tables.css">
+  <link rel="stylesheet" href="../css/responsive.css">
+</head>
+<body>
+  <noscript>برای استفاده از این برنامه باید جاوااسکریپت مرورگر فعال باشد.</noscript>
+
+  <main class="page stack page-enter" id="dashboard-content">
+    <header class="page__head">
+      <div>
+        <h1 class="page__title greeting" id="greeting">سلام</h1>
+        <p class="page__lead">وضعیت مالی ۳۰ روز آینده‌ی شما</p>
+      </div>
+      <div class="page__date" id="today-long"></div>
+    </header>
+
+    <div class="error-banner" id="dash-error" role="alert" hidden>دریافت اطلاعات از دیتابیس انجام نشد. صفحه را دوباره بارگذاری کنید.</div>
+
+    <section class="stats" aria-label="خلاصه‌ی یک ماه آینده">
+      <article class="stat-card stat-card--income">
+        <div class="stat-card__top"><span data-icon="income"></span> مجموع درآمد یک ماه آینده</div>
+        <div class="stat-card__value" id="stat-income">۰</div>
+        <div class="stat-card__unit">میلیون تومان</div>
+        <div class="stat-card__meta" id="stat-income-count"></div>
+      </article>
+      <article class="stat-card stat-card--debt">
+        <div class="stat-card__top"><span data-icon="debt"></span> مجموع بدهی‌های یک ماه آینده</div>
+        <div class="stat-card__value" id="stat-debt">۰</div>
+        <div class="stat-card__unit">میلیون تومان</div>
+        <div class="stat-card__meta" id="stat-debt-count"></div>
+      </article>
+      <article class="stat-card stat-card--balance" id="stat-balance-card" data-sign="zero">
+        <div class="stat-card__top"><span data-icon="wallet"></span> مازاد درآمد بر بدهی‌ها</div>
+        <div class="stat-card__value" id="stat-balance">۰</div>
+        <div class="stat-card__unit">میلیون تومان</div>
+        <div class="stat-card__meta" id="stat-balance-note"></div>
+      </article>
+    </section>
+
+    <section class="card" id="gauge-box" aria-labelledby="gauge-title">
+      <div class="card__head">
+        <span data-icon="sparkle"></span>
+        <h2 class="card__title" id="gauge-title">نسبت درآمد به بدهی‌های ماه آینده</h2>
+      </div>
+      <div class="gauge-box">
+        <div>
+          <div class="gauge" id="gauge-mount"></div>
+          <div class="gauge-ends"><span>بحرانی</span><span>عالی</span></div>
+        </div>
+        <div class="gauge-readout">
+          <span class="gauge-readout__label">نسبت درآمد به بدهی</span>
+          <div class="gauge-readout__value" id="gauge-value" aria-live="off">۰٫۰۰</div>
+          <div class="status" id="gauge-status" data-status="empty">
+            <span class="status__label">بدون داده</span>
+            <span class="status__hint"></span>
+          </div>
+          <p class="gauge-readout__caption" id="gauge-caption"></p>
+          <div class="gauge-legend" aria-hidden="true">
+            <span style="--c: var(--gauge-1)"><i></i> زیر ۰٫۵</span>
+            <span style="--c: var(--gauge-2)"><i></i> ۰٫۵ تا ۱</span>
+            <span style="--c: var(--gauge-3)"><i></i> ۱ تا ۱٫۵</span>
+            <span style="--c: var(--gauge-4)"><i></i> بالای ۱٫۵</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card" aria-labelledby="short-title">
+      <div class="card__head">
+        <span data-icon="calendar"></span>
+        <h2 class="card__title" id="short-title">درآمدها و بدهی‌های ۱۰ روز آینده</h2>
+        <span class="card__aside" id="short-range"></span>
+      </div>
+      <div class="short-grid">
+        <div class="short-col short-col--income">
+          <div class="short-col__head"><span data-icon="income" data-size="18"></span> درآمدها <span class="short-col__total" id="short-income-total">۰</span></div>
+          <ul class="compact-list" id="short-incomes"></ul>
+        </div>
+        <div class="short-col short-col--debt">
+          <div class="short-col__head"><span data-icon="debt" data-size="18"></span> بدهی‌ها <span class="short-col__total" id="short-debt-total">۰</span></div>
+          <ul class="compact-list" id="short-debts"></ul>
+        </div>
+      </div>
+      <div class="short-foot">
+        <span>برآیند ۱۰ روز آینده (درآمد منهای بدهی)</span>
+        <strong><span id="short-balance">۰</span> میلیون تومان</strong>
+      </div>
+    </section>
+
+    <section class="card" aria-labelledby="nearest-title">
+      <div class="card__head">
+        <span data-icon="clock"></span>
+        <h2 class="card__title" id="nearest-title">نزدیک‌ترین سررسیدها</h2>
+      </div>
+      <div class="nearest-grid">
+        <div class="nearest nearest--debt">
+          <span class="nearest__label">نزدیک‌ترین بدهی</span>
+          <div id="nearest-debt"></div>
+        </div>
+        <div class="nearest nearest--income">
+          <span class="nearest__label">نزدیک‌ترین درآمد</span>
+          <div id="nearest-income"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script type="module" src="../js/dashboard-page.js"></script>
+</body>
+</html>

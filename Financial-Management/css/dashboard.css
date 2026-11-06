@@ -1,0 +1,352 @@
+/* ==========================================================================
+   dashboard.css — داشبورد وضعیت مالی
+   ========================================================================== */
+
+.greeting {
+  margin: 0;
+  text-shadow: var(--text-glow);
+}
+
+/* ---------------- کارت‌های آمار ---------------- */
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(12px, 2vw, 20px);
+}
+
+.stat-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: clamp(16px, 2vw, 24px);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-md);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.stat-card::after {
+  content: '';
+  position: absolute;
+  inset: auto -30% -60% auto;
+  width: 70%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--stat-glow, var(--accent-soft)), transparent 70%);
+  z-index: -1;
+}
+
+.stat-card--income { --stat-color: var(--income); --stat-glow: var(--income-soft); border-color: color-mix(in srgb, var(--income) 35%, transparent); }
+.stat-card--debt { --stat-color: var(--debt); --stat-glow: var(--debt-soft); border-color: color-mix(in srgb, var(--debt) 35%, transparent); }
+.stat-card--balance { --stat-color: var(--accent); --stat-glow: var(--accent-soft); border-color: color-mix(in srgb, var(--accent) 35%, transparent); }
+.stat-card--balance[data-sign='positive'] { --stat-color: var(--income); --stat-glow: var(--income-soft); }
+.stat-card--balance[data-sign='negative'] { --stat-color: var(--debt); --stat-glow: var(--debt-soft); }
+
+.stat-card__top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--text-dim);
+  font-weight: 600;
+  font-size: 0.93rem;
+}
+
+.stat-card__top .icon {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 11px;
+  color: var(--stat-color);
+  background: var(--stat-glow);
+}
+
+.stat-card__value {
+  margin-top: 6px;
+  font-size: clamp(1.6rem, 1.1rem + 2vw, 2.4rem);
+  font-weight: 900;
+  line-height: 1.25;
+  color: var(--stat-color);
+  text-shadow: 0 0 22px color-mix(in srgb, var(--stat-color) 55%, transparent);
+  font-variant-numeric: tabular-nums;
+  word-break: break-word;
+}
+
+.stat-card__unit {
+  color: var(--text-dim);
+  font-size: 0.82rem;
+  font-weight: 500;
+}
+
+.stat-card__meta {
+  margin-top: 4px;
+  font-size: 0.82rem;
+  color: var(--text-faint);
+}
+
+/* ---------------- باکس نمودار عقربه‌ای ---------------- */
+
+.gauge-box {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+  align-items: center;
+  gap: clamp(14px, 3vw, 36px);
+}
+
+.gauge-readout {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.gauge-readout__label {
+  color: var(--text-dim);
+  font-weight: 600;
+}
+
+.gauge-readout__value {
+  font-size: clamp(2.6rem, 2rem + 3vw, 4rem);
+  font-weight: 900;
+  line-height: 1.1;
+  color: var(--accent);
+  text-shadow: var(--text-glow);
+  font-variant-numeric: tabular-nums;
+}
+
+.gauge-readout__caption {
+  font-size: 0.9rem;
+  color: var(--text-dim);
+}
+
+.status {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  background: var(--surface-2);
+  border: 1px solid var(--border-strong);
+  border-inline-start: 4px solid var(--status-color, var(--text-faint));
+  transition: border-color var(--t-med) ease;
+}
+
+.status[data-status='critical'] { --status-color: var(--gauge-1); }
+.status[data-status='warning'] { --status-color: var(--gauge-2); }
+.status[data-status='good'] { --status-color: var(--gauge-3); }
+.status[data-status='excellent'] { --status-color: var(--gauge-4); }
+
+.status__label {
+  font-weight: 800;
+  color: var(--status-color, var(--text-strong));
+}
+
+.status__hint {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+}
+
+.gauge-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  font-size: 0.78rem;
+  color: var(--text-faint);
+}
+
+.gauge-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.gauge-legend i {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  background: var(--c);
+  box-shadow: 0 0 8px var(--c);
+}
+
+/* ---------------- باکس ۱۰ روز آینده ---------------- */
+
+.short-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(12px, 2vw, 20px);
+}
+
+.short-col {
+  display: flex;
+  flex-direction: column;
+  border-radius: var(--radius-md);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+
+.short-col__head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 14px;
+  font-weight: 800;
+  border-bottom: 1px solid var(--border);
+}
+
+.short-col--income .short-col__head { color: var(--income); background: var(--income-soft); }
+.short-col--debt .short-col__head { color: var(--debt); background: var(--debt-soft); }
+
+.short-col__total {
+  margin-inline-start: auto;
+  font-size: 0.9rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.compact-list {
+  display: flex;
+  flex-direction: column;
+  max-height: 380px;
+  overflow-y: auto;
+}
+
+.compact-row {
+  display: grid;
+  grid-template-columns: 74px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+}
+
+.compact-row:last-child {
+  border-bottom: 0;
+}
+
+.compact-row__when {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.5;
+}
+
+.compact-row__when small {
+  color: var(--text-faint);
+}
+
+.compact-row__title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 500;
+}
+
+.compact-row__amount {
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.compact-row--income .compact-row__amount { color: var(--income); }
+.compact-row--debt .compact-row__amount { color: var(--debt); }
+
+.compact-empty {
+  padding: 26px 12px;
+  text-align: center;
+  color: var(--text-faint);
+  font-size: 0.9rem;
+}
+
+.short-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 14px;
+  padding: 12px 16px;
+  border-radius: var(--radius-md);
+  background: var(--accent-soft);
+  border: 1px solid var(--border-strong);
+  font-weight: 600;
+}
+
+.short-foot strong {
+  font-variant-numeric: tabular-nums;
+  text-shadow: var(--text-glow);
+  color: var(--accent);
+}
+
+/* ---------------- نزدیک‌ترین سررسید ---------------- */
+
+.nearest-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(12px, 2vw, 20px);
+}
+
+.nearest {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 14px 16px;
+  border-radius: var(--radius-md);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+}
+
+.nearest--debt { border-inline-start: 4px solid var(--debt); }
+.nearest--income { border-inline-start: 4px solid var(--income); }
+
+.nearest__label {
+  font-size: 0.8rem;
+  color: var(--text-faint);
+  font-weight: 600;
+}
+
+.nearest__title {
+  color: var(--text-strong);
+}
+
+.nearest__meta,
+.nearest__empty {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+}
+
+.nearest__amount {
+  font-weight: 800;
+  font-size: 0.95rem;
+}
+
+.nearest--debt .nearest__amount { color: var(--debt); }
+.nearest--income .nearest__amount { color: var(--income); }
+
+.error-banner {
+  padding: 14px 16px;
+  border-radius: var(--radius-md);
+  background: var(--danger-soft);
+  border: 1px solid var(--danger);
+  color: var(--danger);
+}
+
+/* اعداد دارای علامت + یا − همیشه با ترتیب درست نمایش داده شوند */
+.stat-card__value,
+.mini-stat strong,
+.sum-box strong,
+.short-foot strong span,
+.short-col__total,
+.day-table__total {
+  direction: ltr;
+  unicode-bidi: isolate;
+  text-align: right;
+}
+
+.nearest > div {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}

@@ -1,0 +1,72 @@
+/* ==========================================================================
+   gauge.css — ظاهر نمودار عقربه‌ای
+   ========================================================================== */
+
+.gauge {
+  position: relative;
+  width: 100%;
+  max-width: 460px;
+  margin-inline: auto;
+  direction: ltr;
+}
+
+.gauge__svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.gauge__track {
+  stroke: var(--gauge-track);
+}
+
+.gauge__segment {
+  opacity: 0.95;
+}
+
+.gauge__tick {
+  stroke: var(--text-faint);
+}
+
+.gauge__tick-label {
+  fill: var(--text-dim);
+  font-size: 12px;
+  font-weight: 600;
+  font-family: 'Vazirmatn', Tahoma, sans-serif;
+}
+
+.gauge__needle {
+  transform-box: view-box;
+}
+
+.gauge__needle-body {
+  fill: var(--gauge-needle);
+  filter: drop-shadow(0 0 5px var(--accent-glow));
+}
+
+.gauge__hub {
+  fill: var(--bg-1);
+  stroke: var(--gauge-needle);
+  stroke-width: 3;
+}
+
+.gauge__hub-core {
+  fill: var(--accent);
+}
+
+.gauge-ends {
+  display: flex;
+  justify-content: space-between;
+  margin-top: -4px;
+  padding-inline: 6%;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.gauge-ends span:first-child { color: var(--gauge-1); }
+.gauge-ends span:last-child { color: var(--gauge-4); }
+
+.gauge-ends {
+  direction: ltr;
+}
