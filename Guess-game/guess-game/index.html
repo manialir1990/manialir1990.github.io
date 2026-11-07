@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>حدس بزن | بازی دو نفره</title>
+<meta name="theme-color" content="#0b0820">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/background.css">
+<link rel="stylesheet" href="css/components.css">
+<link rel="stylesheet" href="css/game.css">
+<link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+<div id="bg"><div class="scene a"></div><div class="scene b"></div><div id="stars"></div><div id="orbs"></div>
+<svg class="hills" viewBox="0 0 1200 300" preserveAspectRatio="none"><path d="M0 300V180Q150 90 300 170T600 150T900 160T1200 110V300Z" fill="#0a0620" opacity=".55"/><path d="M0 300V230Q200 150 400 220T800 200T1200 180V300Z" fill="#05030f" opacity=".8"/></svg></div>
+
+<main id="app">
+  <section id="intro" class="screen active"></section>
+  <section id="setup" class="screen"></section>
+  <section id="game" class="screen"></section>
+  <section id="end" class="screen"></section>
+  <section id="history" class="screen"></section>
+</main>
+<div id="toast" role="status"></div>
+
+<script src="js/jalali.js"></script>
+<script src="js/data.js"></script>
+<script src="js/store.js"></script>
+<script src="js/background.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/screens-intro.js"></script>
+<script src="js/screens-setup.js"></script>
+<script src="js/engine.js"></script>
+<script src="js/screens-game.js"></script>
+<script src="js/screens-end.js"></script>
+<script src="js/screens-history.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
