@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="dark light">
+  <meta name="theme-color" content="#0b1120" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#eef2f9" media="(prefers-color-scheme: light)">
+  <meta name="description" content="مدیریت هزینه‌ها و اقساط: ثبت درآمد و بدهی، تقویم شمسی و نمودار وضعیت مالی ماه آینده">
+  <meta name="robots" content="noindex">
+  <title>ثبت نام | مدیریت هزینه‌ها و اقساط</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23f5c451'/%3E%3Ctext x='32' y='46' font-size='40' font-weight='700' text-anchor='middle' font-family='Georgia,serif' fill='%231a1204'%3E$%3C/text%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/theme.css">
+  <link rel="stylesheet" href="../css/animations.css">
+  <link rel="stylesheet" href="../css/layout.css">
+  <link rel="stylesheet" href="../css/components.css">
+  <link rel="stylesheet" href="../css/toast.css">
+  <link rel="stylesheet" href="../css/auth.css">
+  <link rel="stylesheet" href="../css/responsive.css">
+</head>
+<body>
+  <noscript>برای استفاده از این برنامه باید جاوااسکریپت مرورگر فعال باشد.</noscript>
+
+  <main class="auth">
+    <div class="auth-wrap">
+      <section class="card auth-card" aria-labelledby="register-title">
+        <div id="register-panel">
+          <div class="auth-card__logo" aria-hidden="true">$</div>
+          <h1 class="auth-card__title" id="register-title">ساخت حساب جدید</h1>
+          <p class="auth-card__lead">پس از ثبت نام، لینک تأیید به ایمیل شما ارسال می‌شود.</p>
+
+          <div id="register-message" class="form-message" role="alert" hidden></div>
+
+          <form id="register-form" novalidate>
+            <div class="field">
+              <label class="field__label" for="full-name">نام و نام خانوادگی</label>
+              <div class="field__control">
+                <span class="field__icon" data-icon="user"></span>
+                <input class="input input--icon" id="full-name" name="full-name" type="text" autocomplete="name" placeholder="مثلاً علی رضایی" required>
+              </div>
+            </div>
+        <div class="field">
+          <label class="field__label" for="email">ایمیل</label>
+          <div class="field__control">
+            <span class="field__icon" data-icon="mail"></span>
+            <input class="input input--icon input--ltr" id="email" name="email" type="email" inputmode="email" autocomplete="email" placeholder="example@mail.com" required>
+          </div>
+        </div>
+        <div class="field">
+          <label class="field__label" for="password">رمز عبور</label>
+          <div class="field__control">
+            <span class="field__icon" data-icon="lock"></span>
+            <input class="input input--icon input--toggle input--ltr" id="password" name="password" type="password" autocomplete="new-password" placeholder="حداقل ۸ نویسه شامل حرف و عدد" required>
+            <button class="field__toggle" type="button" data-toggle-password="#password"></button>
+          </div>
+          <div class="strength is-empty" id="strength" data-level="0" aria-live="polite">
+            <span class="strength__bar"></span><span class="strength__bar"></span><span class="strength__bar"></span><span class="strength__bar"></span>
+            <span class="strength__label"></span>
+          </div>
+        </div>
+        <div class="field">
+          <label class="field__label" for="password-confirm">تکرار رمز عبور</label>
+          <div class="field__control">
+            <span class="field__icon" data-icon="lock"></span>
+            <input class="input input--icon input--toggle input--ltr" id="password-confirm" name="password-confirm" type="password" autocomplete="new-password" placeholder="••••••••" required>
+            <button class="field__toggle" type="button" data-toggle-password="#password-confirm"></button>
+          </div>
+        </div>
+            <button class="btn btn--primary btn--block auth-submit" id="register-submit" type="submit" style="margin-top:22px">ثبت نام</button>
+          </form>
+
+          <div class="auth-card__foot">
+            قبلاً ثبت نام کرده‌اید؟
+            <a href="../index.html">وارد شوید</a>
+          </div>
+        </div>
+
+        <div id="sent-panel" class="state-panel" hidden>
+          <div class="state-icon"><span data-icon="mail" data-size="40"></span></div>
+          <h2>ایمیل تأیید ارسال شد</h2>
+          <p>یک لینک فعال‌سازی به این نشانی فرستادیم:</p>
+          <span class="state-email" id="sent-email"></span>
+          <div id="sent-message" class="form-message" role="alert" hidden></div>
+          <ul class="steps">
+            <li>صندوق ایمیل (و پوشه‌ی اسپم) را بررسی کنید.</li>
+            <li>روی لینک «تأیید ایمیل» بزنید تا حساب فعال شود.</li>
+            <li>بعد از تأیید، مستقیم وارد داشبورد وضعیت مالی می‌شوید.</li>
+          </ul>
+          <div class="state-actions">
+            <button class="btn btn--ghost btn--block" id="resend-btn" type="button">ارسال دوباره</button>
+            <a class="btn btn--primary btn--block" href="../index.html">رفتن به صفحه‌ی ورود</a>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <script type="module" src="../js/register-page.js"></script>
+</body>
+</html>

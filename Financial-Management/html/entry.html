@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="dark light">
+  <meta name="theme-color" content="#0b1120" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#eef2f9" media="(prefers-color-scheme: light)">
+  <meta name="description" content="مدیریت هزینه‌ها و اقساط: ثبت درآمد و بدهی، تقویم شمسی و نمودار وضعیت مالی ماه آینده">
+  <meta name="robots" content="noindex">
+  <title>ورود اطلاعات مالی | مدیریت هزینه‌ها و اقساط</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23f5c451'/%3E%3Ctext x='32' y='46' font-size='40' font-weight='700' text-anchor='middle' font-family='Georgia,serif' fill='%231a1204'%3E$%3C/text%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/theme.css">
+  <link rel="stylesheet" href="../css/animations.css">
+  <link rel="stylesheet" href="../css/layout.css">
+  <link rel="stylesheet" href="../css/components.css">
+  <link rel="stylesheet" href="../css/toast.css">
+  <link rel="stylesheet" href="../css/dashboard.css">
+  <link rel="stylesheet" href="../css/gauge.css">
+  <link rel="stylesheet" href="../css/forms.css">
+  <link rel="stylesheet" href="../css/tables.css">
+  <link rel="stylesheet" href="../css/merge.css">
+  <link rel="stylesheet" href="../css/responsive.css">
+</head>
+<body>
+  <noscript>برای استفاده از این برنامه باید جاوااسکریپت مرورگر فعال باشد.</noscript>
+
+  <main class="page stack page-enter">
+    <header class="page__head">
+      <div>
+        <h1 class="page__title">ورود اطلاعات مالی</h1>
+        <p class="page__lead">درآمدها و بدهی‌های آینده را ثبت کنید و روزبه‌روز ببینید.</p>
+      </div>
+    </header>
+
+    <section class="card entry-card" id="entry-card" data-kind="debt" aria-labelledby="entry-title">
+      <div class="card__head">
+        <span data-icon="plus"></span>
+        <h2 class="card__title" id="entry-title">ثبت درآمد یا بدهی جدید</h2>
+      </div>
+      <div id="form-message" class="form-message" role="alert" hidden></div>
+
+      <form id="entry-form" class="entry-form" novalidate>
+        <div class="field entry-form__kind">
+          <span class="field__label" id="kind-label">نوع اطلاعات</span>
+          <div class="segmented" role="radiogroup" aria-labelledby="kind-label">
+            <div class="segmented__item segmented__item--debt">
+              <input type="radio" name="kind" id="kind-debt" value="debt" checked>
+              <label class="segmented__label" for="kind-debt">بدهی</label>
+            </div>
+            <div class="segmented__item segmented__item--income">
+              <input type="radio" name="kind" id="kind-income" value="income">
+              <label class="segmented__label" for="kind-income">درآمد</label>
+            </div>
+          </div>
+        </div>
+
+        <div class="field entry-form__date">
+          <span class="field__label">تاریخ (شمسی)</span>
+          <div id="date-slot"></div>
+        </div>
+
+        <div class="field entry-form__title">
+          <label class="field__label" for="title" id="title-label">علت بدهی</label>
+          <input class="input" id="title" name="title" type="text" maxlength="200" autocomplete="off" placeholder="مثلاً قسط وام خودرو، حقوق، اجاره…">
+        </div>
+
+        <div class="field entry-form__amount">
+          <label class="field__label" for="amount">مقدار (میلیون تومان)</label>
+          <div class="field__control">
+            <input class="input input--suffix" id="amount" name="amount" type="text" inputmode="decimal" autocomplete="off" placeholder="مثلاً ۱۲٫۵">
+            <span class="input-suffix">میلیون تومان</span>
+          </div>
+          <div class="amount-hint" id="amount-hint"></div>
+        </div>
+
+        <div class="entry-form__repeat repeat-box">
+          <label class="check repeat-box__toggle" for="repeat">
+            <input type="checkbox" id="repeat" name="repeat">
+            <span>آیا این درآمد و بدهی تکراری خواهد بود؟</span>
+          </label>
+          <div id="repeat-panel" class="repeat-panel" hidden>
+            <div class="field">
+              <span class="field__label" id="unit-label">تکرار به چه صورت باشد؟</span>
+              <div class="segmented" role="radiogroup" aria-labelledby="unit-label">
+                <div class="segmented__item segmented__item--neutral">
+                  <input type="radio" name="unit" id="unit-monthly" value="monthly" checked>
+                  <label class="segmented__label" for="unit-monthly">ماهانه</label>
+                </div>
+                <div class="segmented__item segmented__item--neutral">
+                  <input type="radio" name="unit" id="unit-yearly" value="yearly">
+                  <label class="segmented__label" for="unit-yearly">سالانه</label>
+                </div>
+              </div>
+            </div>
+            <div class="field">
+              <label class="field__label" for="repeat-count">تا چند بازه‌ی زمانی دیگر تکرار شود؟</label>
+              <div class="count-control">
+                <input class="input" id="repeat-count" type="text" inputmode="numeric" value="۳" autocomplete="off">
+                <span class="count-control__unit">بازه‌ی <span id="count-unit">ماه</span> دیگر</span>
+              </div>
+            </div>
+            <p class="repeat-panel__preview" id="repeat-preview"></p>
+          </div>
+        </div>
+
+        <div class="entry-form__actions">
+          <button class="btn btn--primary" id="entry-submit" type="submit">ذخیره در دیتابیس</button>
+        </div>
+      </form>
+    </section>
+
+    <section aria-label="انتخاب بازه‌ی نمایش">
+      <div class="period-bar">
+        <div class="period-bar__buttons">
+          <button class="period-btn is-active" id="btn-rolling" data-period="rolling" type="button">۳۰ روز آینده</button>
+          <button class="period-btn" id="btn-next-month" data-period="month" type="button">ماه بعدی</button>
+          <button class="period-btn" id="btn-next-year" data-period="year" type="button">سال بعد</button>
+          <button class="period-btn" id="btn-prev" type="button" hidden>قبلی</button>
+          <button class="period-btn" id="btn-next" type="button" hidden>بعدی</button>
+        </div>
+        <div class="period-bar__label" id="period-label"></div>
+      </div>
+    </section>
+
+    <section class="period-summary" aria-label="جمع بازه‌ی انتخاب‌شده">
+      <div class="mini-stat mini-stat--income"><small>جمع درآمد</small><strong id="period-income">۰</strong></div>
+      <div class="mini-stat mini-stat--debt"><small>جمع بدهی</small><strong id="period-debt">۰</strong></div>
+      <div class="mini-stat" id="period-balance-box" data-sign="zero"><small>برآیند</small><strong id="period-balance">۰</strong></div>
+    </section>
+
+    <section class="tables" id="tables" aria-label="جدول درآمدها و بدهی‌های آتی">
+      <div class="day-table" id="income-table"></div>
+      <div class="day-table" id="debt-table"></div>
+    </section>
+  </main>
+
+  <script type="module" src="../js/entry-page.js"></script>
+</body>
+</html>
